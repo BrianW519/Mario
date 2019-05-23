@@ -21,7 +21,7 @@ public class CollisionListener implements ContactListener {
 
 		switch (cDef) {
 			case MainGame.GROUND_BIT | MainGame.MARIO_BIT:
-				((Mario) fixA.getUserData()).brickCollide();
+				
 
 		}
 

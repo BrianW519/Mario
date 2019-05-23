@@ -24,11 +24,12 @@ import mario.game.GameScreen;
 import mario.game.MainGame;
 
 
-public class Mario extends Sprite {
+public class Goomba extends Sprite {
 
-	private float			speed	= 1.0f;			 // 10 pixels per second.
+	private float			speed	= 0.5f;										 // 10 pixels per second.
 	private float			xPos;
 	private float			yPos;
+
 
 	public Body				body;
 	public World			world;
@@ -38,22 +39,21 @@ public class Mario extends Sprite {
 	private TextureRegion	marioStanding;
 
 	public State			currentState;
-	public State			previousState;
 
 	public enum State {
-		FALLING, JUMPING, STANDING, RUNNING, DEAD
+		ALIVE, DEAD
 	};
 
-	public Mario(World world, GameScreen screen) {
-		// Get little mario images loaded from atlas
-		super(screen.getImages().findRegion("little_mario"));
+	public Goomba(World world, GameScreen screen) {
+		// Get goomba images from atlas
+		super(screen.getImages().findRegion("goomba"));
 		this.world = world;
 
 		// Set Starting Position
-		xPos = 32;
+		xPos = 64;
 		yPos = 64;
 		// Create mario body and texture
-		createMario();
+		createGoomba();
 
 		// define mario standing image from atlas
 		marioStanding = new TextureRegion(getTexture(), 0, 10, 16, 16);
@@ -68,11 +68,11 @@ public class Mario extends Sprite {
 		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
 	}
 
-	public void createMario() {
+	public void createGoomba() {
 		// Create Body Definition
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
-		// Set our body's starting position in the world
+		// Set body's position in the world
 		bodyDef.position.set(xPos / MainGame.PPM, yPos / MainGame.PPM);
 
 		// Create body in the world using body definition
@@ -81,7 +81,7 @@ public class Mario extends Sprite {
 		// Create shape for fixture
 		PolygonShape polygon = new PolygonShape();
 		CircleShape circle = new CircleShape();
-		circle.setRadius(7 / MainGame.PPM);
+		circle.setRadius(5 / MainGame.PPM);
 		polygon.setAsBox(10 / MainGame.PPM, 10 / MainGame.PPM); //
 
 		// Create a fixture definition to apply our shape to
@@ -97,8 +97,9 @@ public class Mario extends Sprite {
 		polygon.dispose();
 	}
 
-	// ===================================== Methods
-	// =====================================
+	// ===================================================================================
+	// ====================================  Methods  ====================================
+	// ===================================================================================
 	public boolean moveLeft() {
 		// Make sure not moving too fast
 		if (body.getLinearVelocity().x >= -1)
@@ -115,45 +116,10 @@ public class Mario extends Sprite {
 		return true;
 	}
 
-	public boolean jump() {
-		if (body.getLinearVelocity().y == 0) {
-			body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
-			//currentState = State.JUMPING;
-		}
-
-		return true;
-	}
-
-	public void brickCollide() {
-		body.setAwake(false);
-	}
-
-	public State getState() {
-		// if mario is going positive in Y-Axis he is jumping... or if he just jumped
-		// and is falling remain in jump state
-
-		// if(marioIsDead)
-		// return State.DEAD;
-
-		if ((body.getLinearVelocity().y > 0 && currentState == State.JUMPING)
-				|| (body.getLinearVelocity().y < 0 && previousState == State.JUMPING))
-			return State.JUMPING;
-		// if negative in Y-Axis mario is falling
-		else if (body.getLinearVelocity().y < 0)
-			return State.FALLING;
-		// if mario is positive or negative in the X axis he is running
-		else if (body.getLinearVelocity().x != 0)
-			return State.RUNNING;
-		// if none of these return then he must be standing
-		else
-			return State.STANDING;
-	}
 
 	// ===================================================================================
-	// ===================================== Getters
-	// =====================================
-	// ===================================== & Setters
-	// ==================================
+	// ====================================  Getters  ====================================
+	// ==================================== & Setters ====================================
 	// ===================================================================================
 	public float getSpeed() {
 		return speed;

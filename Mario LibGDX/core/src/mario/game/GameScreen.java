@@ -35,6 +35,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import mario.objects.Mario;
+import mario.objects.Mario.State;
 import mario.game.CollisionListener;
 
 
@@ -170,10 +171,6 @@ public class GameScreen implements Screen {
 	}
 
 	private void keyPressCheck(float time) {
-		// If Mario moves, move screen with him
-		if (Gdx.input.isTouched())
-			gameCam.position.x += 100 * time / PPM;
-
 		// If Mario goes left
 		if (Gdx.input.isKeyPressed(LEFT))
 			mario.moveLeft();
@@ -185,10 +182,11 @@ public class GameScreen implements Screen {
 		// If Mario jumps
 		if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP))
 			mario.jump();
-		
-		//If not going right or left, set horizontal velocity to 0
-		if(!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT))
-			mario.body.setLinearVelocity(new Vector2(0, mario.body.getLinearVelocity().y));
+
+		//If no keys are pressed, and hes running, make him standing
+		if (!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT)
+				&& mario.currentState == State.RUNNING)
+			mario.currentState = State.STANDING;
 	}
 
 	private void update(float time) {
@@ -200,9 +198,14 @@ public class GameScreen implements Screen {
 
 		//update Mario
 		mario.update(time);
+		//If he is standing, stop movement
+		if (mario.currentState == State.STANDING)
+			mario.body.setLinearVelocity(new Vector2(0, 0));
+		mario.updateState();
 
 		// Set game cam to mario position
-		gameCam.position.x = mario.body.getPosition().x;
+		if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
+			gameCam.position.x = mario.body.getPosition().x;
 		// Update camera
 		gameCam.update();
 		// Render what is showing on the camera

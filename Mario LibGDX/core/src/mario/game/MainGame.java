@@ -30,7 +30,8 @@ public class MainGame extends Game {
 	@Override public void create() {
 		batch = new SpriteBatch();
 
-		//Set screen to the game screen and pass it this game class
+		//Set screen to the game screen (should start at beginning screen)
+		//Pass this class so it has dimensions, PPM, and spritebatch
 		setScreen(new GameScreen(this));
 	}
 
