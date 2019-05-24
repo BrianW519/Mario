@@ -13,7 +13,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1200;
 		config.height = 624;
-		//Create New Game
+		//Create New Game Window
 		new LwjglApplication(new MainGame(), config);
 	}
 
