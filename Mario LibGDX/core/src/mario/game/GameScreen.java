@@ -38,239 +38,241 @@ import mario.objects.Mario;
 import mario.objects.Mario.State;
 import mario.game.CollisionListener;
 
-
 public class GameScreen implements Screen {
 
-	Mario								mario;
+    Mario mario;
 
-	//Define Keys
-	private static final int			LEFT	= Keys.DPAD_LEFT;
-	private static final int			RIGHT	= Keys.DPAD_RIGHT;
-	private static final int			UP		= Keys.DPAD_UP;
-	private static final int			SPACE	= Keys.SPACE;
+    // Define Keys
+    private static final int LEFT = Keys.DPAD_LEFT;
+    private static final int RIGHT = Keys.DPAD_RIGHT;
+    private static final int UP = Keys.DPAD_UP;
+    private static final int SPACE = Keys.SPACE;
 
-	// Loads Maps
-	private TmxMapLoader				mapLoader;
-	private TiledMap					map;
-	private OrthogonalTiledMapRenderer	renderer;
+    // Loads Maps
+    private TmxMapLoader mapLoader;
+    private TiledMap map;
+    private OrthogonalTiledMapRenderer renderer;
 
-	//Images
-	private TextureAtlas				images;
+    // Images
+    private TextureAtlas images;
 
-	private MainGame					game;
-	// Add PPM here too to shorten code
-	public static final float			PPM		= MainGame.PPM;
-	private HUD							hud;
-	private World						world;
+    private MainGame game;
+    // Add PPM here too to shorten code
+    public static final float PPM = MainGame.PPM;
+    private HUD hud;
+    private World world;
 
-	Box2DDebugRenderer					debugRender;
-	private OrthographicCamera			gameCam;
-	private Viewport					gamePort;
+    Box2DDebugRenderer debugRender;
+    private OrthographicCamera gameCam;
+    private Viewport gamePort;
 
-	private CollisionListener			contactListener;
+    private CollisionListener contactListener;
 
-	public GameScreen(MainGame game) {
+    public GameScreen(MainGame game) {
 
-		gameCam = new OrthographicCamera();
-		gamePort = new FitViewport(MainGame.V_WIDTH / PPM, MainGame.V_HEIGHT / PPM, gameCam);
+	gameCam = new OrthographicCamera();
+	gamePort = new FitViewport(MainGame.V_WIDTH / PPM, MainGame.V_HEIGHT / PPM, gameCam);
 
-		this.game = game;
+	this.game = game;
 
-		// Create Game HUD with time and points (takes in sprite batch from MainGame)
-		hud = new HUD(game.batch);
+	// Create Game HUD with time and points (takes in sprite batch from MainGame)
+	hud = new HUD(game.batch);
 
-		//Create atlas of images
-		images = new TextureAtlas("assets/Mario_Images.pack");
+	// Create atlas of images
+	images = new TextureAtlas("assets/Mario_Images.pack");
 
-		// Load Level and render it
-		mapLoader = new TmxMapLoader();
-		map = mapLoader.load("assets/Levels/Level1.tmx");
-		renderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
-		// Set Game Camera Position at beginning
-		gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
+	// Load Level and render it
+	mapLoader = new TmxMapLoader();
+	map = mapLoader.load("assets/Levels/Level1.tmx");
+	renderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
+	// Set Game Camera Position at beginning
+	gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
-		// world.setContactListener(new CollisionListener());
+	// world.setContactListener(new CollisionListener());
 
-		game.batch.enableBlending();
+	game.batch.enableBlending();
 
-		// Create world where all bodies will be stored
-		world = new World(new Vector2(0, -10), true);
-		debugRender = new Box2DDebugRenderer();
+	// Create world where all bodies will be stored
+	world = new World(new Vector2(0, -10), true);
+	debugRender = new Box2DDebugRenderer();
 
-		//Create ground and blocks and all world elements
-		createWorld(world);
-		//Create Mario
-		mario = new Mario(world, this);
+	// Create ground and blocks and all world elements
+	createWorld(world);
+	// Create Mario
+	mario = new Mario(world, this);
 
+    }
+
+    private void createWorld(World world) {
+	BodyDef bdef = new BodyDef();
+	PolygonShape shape = new PolygonShape();
+	FixtureDef fdef = new FixtureDef();
+	Body body;
+	// Gets Ground layer from map objects and creates static body
+	for (MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
+	    Rectangle rect = ((RectangleMapObject) object).getRectangle();
+
+	    bdef.type = BodyDef.BodyType.StaticBody;
+	    bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM, (rect.getY() + rect.getHeight() / 2) / PPM);
+
+	    body = world.createBody(bdef);
+
+	    shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
+	    fdef.shape = shape;
+	    body.createFixture(fdef);
 	}
 
-	private void createWorld(World world) {
-		BodyDef bdef = new BodyDef();
-		PolygonShape shape = new PolygonShape();
-		FixtureDef fdef = new FixtureDef();
-		Body body;
-		// Gets Ground layer from map objects and creates static body
-		for (MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
-			Rectangle rect = ((RectangleMapObject) object).getRectangle();
+	// Create Bricks
+	for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
+	    Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
-			bdef.type = BodyDef.BodyType.StaticBody;
-			bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM,
-					(rect.getY() + rect.getHeight() / 2) / PPM);
+	    bdef.type = BodyDef.BodyType.StaticBody;
+	    bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM, (rect.getY() + rect.getHeight() / 2) / PPM);
 
-			body = world.createBody(bdef);
+	    body = world.createBody(bdef);
 
-			shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
-			fdef.shape = shape;
-			body.createFixture(fdef);
-		}
-
-		// Create Bricks
-		for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
-			Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-			bdef.type = BodyDef.BodyType.StaticBody;
-			bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM,
-					(rect.getY() + rect.getHeight() / 2) / PPM);
-
-			body = world.createBody(bdef);
-
-			shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
-			fdef.shape = shape;
-			body.createFixture(fdef);
-		}
-
-		// Create Pipes
-		for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
-			Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-			bdef.type = BodyDef.BodyType.StaticBody;
-			bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM,
-					(rect.getY() + rect.getHeight() / 2) / PPM);
-
-			body = world.createBody(bdef);
-
-			shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
-			fdef.shape = shape;
-			body.createFixture(fdef);
-		}
-
-		// Create Coins
-		for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
-			Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-			bdef.type = BodyDef.BodyType.StaticBody;
-			bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM,
-					(rect.getY() + rect.getHeight() / 2) / PPM);
-
-			body = world.createBody(bdef);
-
-			shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
-			fdef.shape = shape;
-			body.createFixture(fdef);
-		}
+	    shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
+	    fdef.shape = shape;
+	    body.createFixture(fdef);
 	}
 
-	private void keyPressCheck(float time) {
-		// If Mario goes left
-		if (Gdx.input.isKeyPressed(LEFT))
-			mario.moveLeft();
+	// Create Pipes
+	for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
+	    Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
-		// If Mario goes right
-		if (Gdx.input.isKeyPressed(RIGHT))
-			mario.moveRight();
+	    bdef.type = BodyDef.BodyType.StaticBody;
+	    bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM, (rect.getY() + rect.getHeight() / 2) / PPM);
 
-		// If Mario jumps
-		if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP))
-			mario.jump();
+	    body = world.createBody(bdef);
 
-		//If no keys are pressed, and hes running, make him standing
-		if (!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT)
-				&& mario.currentState == State.RUNNING)
-			mario.currentState = State.STANDING;
+	    shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
+	    fdef.shape = shape;
+	    body.createFixture(fdef);
 	}
 
-	private void update(float time) {
-		// Check if any keys are pressed
-		keyPressCheck(time);
+	// Create Coins
+	for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
+	    Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
-		// Step world 60 frames every second
-		world.step(1 / 60f, 6, 2);
+	    bdef.type = BodyDef.BodyType.StaticBody;
+	    bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM, (rect.getY() + rect.getHeight() / 2) / PPM);
 
-		//update Mario
-		mario.update(time);
-		//If he is standing, stop movement
-		if (mario.currentState == State.STANDING)
-			mario.body.setLinearVelocity(new Vector2(0, 0));
-		mario.updateState();
+	    body = world.createBody(bdef);
 
-		// Set game cam to mario position
-		if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
-			gameCam.position.x = mario.body.getPosition().x;
-		// Update camera
-		gameCam.update();
-		// Render what is showing on the camera
-		renderer.setView(gameCam);
+	    shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
+	    fdef.shape = shape;
+	    body.createFixture(fdef);
 	}
+    }
 
-	@Override public void render(float delta) {
-		// Updates keys and camera and other things
-		// Do this BEFORE rendering
-		update(delta);
+    private void keyPressCheck(float time) {
+	// If Mario moves, move screen with him
+	if (Gdx.input.isTouched())
+		gameCam.position.x += 100 * time / PPM;
 
-		// Clear and replace background with color
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	// If Mario goes left
+	if (Gdx.input.isKeyPressed(LEFT))
+		mario.moveLeft();
 
-		// Render Map
-		renderer.render();
+	// If Mario goes right
+	if (Gdx.input.isKeyPressed(RIGHT))
+		mario.moveRight();
 
-		// Show Debug render lines
-		debugRender.render(world, gameCam.combined);
+	// If Mario jumps
+	if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP))
+		mario.jump();
+	
+	//If not going right or left, set horizontal velocity to 0
+	//if(!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT))
+		//mario.body.setLinearVelocity(new Vector2(0, mario.body.getLinearVelocity().y));
+}
 
-		game.batch.setProjectionMatrix(gameCam.combined);
-		game.batch.begin();
+    private void update(float time) {
+	// Check if any keys are pressed
+	keyPressCheck(time);
 
-		// Draw Mario giving sprite batch
-		mario.draw(game.batch);
+	// Step world 60 frames every second
+	world.step(1 / 60f, 6, 2);
 
-		game.batch.end();
+	// update Mario
+	mario.update(time);
+	// Update his state
+	//mario.updateState();
 
-		// Now draw HUD display on top
-		game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-		hud.stage.draw();
-	}
+	// Set game cam to mario position
+	if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
+	    gameCam.position.x = mario.body.getPosition().x;
+	// Update camera
+	gameCam.update();
+	// Render what is showing on the camera
+	renderer.setView(gameCam);
+    }
 
+    @Override
+    public void render(float delta) {
+	// Updates keys and camera and other things
+	// Do this BEFORE rendering
+	update(delta);
 
-	public TextureAtlas getImages() {
-		return images;
-	}
+	// Clear and replace background with color
+	Gdx.gl.glClearColor(0, 0, 0, 1);
+	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-	@Override public void dispose() {
-		game.batch.dispose();
-	}
+	// Render Map
+	renderer.render();
 
-	@Override public void show() {
-		// TODO Auto-generated method stub
+	// Show Debug render lines
+	debugRender.render(world, gameCam.combined);
 
-	}
+	game.batch.setProjectionMatrix(gameCam.combined);
+	game.batch.begin();
 
-	@Override public void resize(int width, int height) {
-		gamePort.update(width, height);
+	// Draw Mario giving sprite batch
+	mario.draw(game.batch);
 
-	}
+	game.batch.end();
 
-	@Override public void pause() {
-		// TODO Auto-generated method stub
+	// Now draw HUD display on top
+	game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+	hud.stage.draw();
+    }
 
-	}
+    public TextureAtlas getImages() {
+	return images;
+    }
 
-	@Override public void resume() {
-		// TODO Auto-generated method stub
+    @Override
+    public void dispose() {
+	game.batch.dispose();
+    }
 
-	}
+    @Override
+    public void show() {
+	// TODO Auto-generated method stub
 
-	@Override public void hide() {
-		// TODO Auto-generated method stub
+    }
 
-	}
+    @Override
+    public void resize(int width, int height) {
+	gamePort.update(width, height);
+
+    }
+
+    @Override
+    public void pause() {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void resume() {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void hide() {
+	// TODO Auto-generated method stub
+
+    }
 }
