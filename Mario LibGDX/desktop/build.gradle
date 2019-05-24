@@ -6,7 +6,6 @@ sourceSets.main.resources.srcDirs = [ "assets/" ]
 
 project.ext.mainClassName = "mario.game.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets")
-assets.srcDirs = ['../assets']
 
 
 task run(dependsOn: classes, type: JavaExec) {

@@ -80,11 +80,11 @@ public class GameScreen implements Screen {
 		hud = new HUD(game.batch);
 
 		//Create atlas of images
-		images = new TextureAtlas("Mario_Images.pack");
+		images = new TextureAtlas("assets/Mario_Images.pack");
 
 		// Load Level and render it
 		mapLoader = new TmxMapLoader();
-		map = mapLoader.load("Levels/Level1.tmx");
+		map = mapLoader.load("assets/Levels/Level1.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
 		// Set Game Camera Position at beginning
 		gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
