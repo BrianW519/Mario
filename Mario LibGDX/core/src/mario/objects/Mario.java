@@ -79,22 +79,20 @@ public class Mario extends Sprite {
 	body = world.createBody(bodyDef);
 
 	// Create shape for fixture
-	PolygonShape polygon = new PolygonShape();
 	CircleShape circle = new CircleShape();
 	circle.setRadius(6 / MainGame.PPM);
-	polygon.setAsBox(10 / MainGame.PPM, 10 / MainGame.PPM); //
 
 	// Create a fixture definition to apply our shape to
 	FixtureDef fixtureDef = new FixtureDef();
 	fixtureDef.shape = circle;
-	fixtureDef.density = 35f;
+	fixtureDef.density = 20f;
 	fixtureDef.friction = 0f;
 	fixtureDef.restitution = 0.1f; // Make it bounce a little bit
 
 	// Create our fixture and attach it to the body
 	Fixture fixture = body.createFixture(fixtureDef);
 
-	polygon.dispose();
+	circle.dispose();
     }
 
     // ===================================================================================
@@ -120,7 +118,7 @@ public class Mario extends Sprite {
     public boolean jump() {
 	if (body.getLinearVelocity().y == 0) {
 	    body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
-	    currentState = State.JUMPING;
+	   // currentState = State.JUMPING;
 	}
 
 	return true;

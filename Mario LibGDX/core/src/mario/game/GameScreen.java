@@ -166,10 +166,6 @@ public class GameScreen implements Screen {
     }
 
     private void keyPressCheck(float time) {
-	// If Mario moves, move screen with him
-	if (Gdx.input.isTouched())
-		gameCam.position.x += 100 * time / PPM;
-
 	// If Mario goes left
 	if (Gdx.input.isKeyPressed(LEFT))
 		mario.moveLeft();
