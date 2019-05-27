@@ -37,6 +37,8 @@ public class Mario extends Sprite {
     public Sprite sprite;
 
     private TextureRegion marioStanding;
+    private boolean facingRight;
+    private boolean facingLeft;
 
     public State currentState;
 
@@ -66,6 +68,19 @@ public class Mario extends Sprite {
     public void update(float time) {
 	// Attach sprite image to body
 	setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
+	
+	//Make sprite face right direction that Mario is running
+	if (body.getLinearVelocity().x < 0) {
+	    facingLeft = true;
+	    facingRight = false;
+	    sprite.flip(true, false);
+	}
+	else if (body.getLinearVelocity().x > 0) {
+	    facingRight = true;
+	    facingLeft = false;
+	    sprite.flip(true, false);
+	}
+	    
     }
 
     public void createMario() {
@@ -73,7 +88,7 @@ public class Mario extends Sprite {
 	BodyDef bodyDef = new BodyDef();
 	bodyDef.type = BodyType.DynamicBody;
 	// Set body's starting position in the world
-	bodyDef.position.set(xPos / MainGame.PPM, yPos / MainGame.PPM);
+	bodyDef.position.set(32 / MainGame.PPM, 32 / MainGame.PPM);
 
 	// Create body in the world using body definition
 	body = world.createBody(bodyDef);
@@ -85,12 +100,9 @@ public class Mario extends Sprite {
 	// Create a fixture definition to apply our shape to
 	FixtureDef fixtureDef = new FixtureDef();
 	fixtureDef.shape = circle;
-	fixtureDef.density = 20f;
-	fixtureDef.friction = 0f;
-	fixtureDef.restitution = 0.1f; // Make it bounce a little bit
 
 	// Create our fixture and attach it to the body
-	Fixture fixture = body.createFixture(fixtureDef);
+	body.createFixture(fixtureDef).setUserData(this);;
 
 	circle.dispose();
     }
@@ -117,13 +129,13 @@ public class Mario extends Sprite {
 
     public boolean jump() {
 	if (body.getLinearVelocity().y == 0) {
-	    body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
+	    body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
 	   // currentState = State.JUMPING;
 	}
 
 	return true;
     }
-
+/*
     public void stopMoving() {
 	// currentState = State.STANDING;
 	body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
@@ -144,7 +156,7 @@ public class Mario extends Sprite {
 	else
 	    currentState = State.STANDING;
     }
-
+*/
     // ===================================================================================
     // ==================================== Getters
     // ====================================

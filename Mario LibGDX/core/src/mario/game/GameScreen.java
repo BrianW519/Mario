@@ -167,21 +167,22 @@ public class GameScreen implements Screen {
 
     private void keyPressCheck(float time) {
 	// If Mario goes left
-	if (Gdx.input.isKeyPressed(LEFT))
-		mario.moveLeft();
+	if (Gdx.input.isKeyPressed(LEFT) && mario.body.getLinearVelocity().x >= -2)
+	    mario.body.applyLinearImpulse(new Vector2(-0.1f, 0), mario.body.getWorldCenter(), true);
 
 	// If Mario goes right
-	if (Gdx.input.isKeyPressed(RIGHT))
-		mario.moveRight();
+	if (Gdx.input.isKeyPressed(RIGHT) && mario.body.getLinearVelocity().x <= 2)
+	    mario.body.applyLinearImpulse(new Vector2(0.1f, 0), mario.body.getWorldCenter(), true);
 
 	// If Mario jumps
 	if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP))
-		mario.jump();
-	
-	//If not going right or left, set horizontal velocity to 0
-	//if(!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT))
-		//mario.body.setLinearVelocity(new Vector2(0, mario.body.getLinearVelocity().y));
-}
+	    mario.jump();
+
+	// If not going right or left, set horizontal velocity to 0
+	// if(!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT))
+	// mario.body.setLinearVelocity(new Vector2(0,
+	// mario.body.getLinearVelocity().y));
+    }
 
     private void update(float time) {
 	// Check if any keys are pressed
@@ -193,7 +194,7 @@ public class GameScreen implements Screen {
 	// update Mario
 	mario.update(time);
 	// Update his state
-	//mario.updateState();
+	// mario.updateState();
 
 	// Set game cam to mario position
 	if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
