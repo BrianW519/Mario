@@ -1,4 +1,4 @@
-package mario.objects;
+package mario.sprite;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -41,9 +41,10 @@ public class Mario extends Sprite {
     private boolean facingLeft;
 
     public State currentState;
+    public State previousState;
 
     public enum State {
-	JUMPING, STANDING, RUNNING, DEAD
+	JUMPING, FALLING, STANDING, RUNNING, DEAD
     };
 
     public Mario(World world, GameScreen screen) {
@@ -68,19 +69,9 @@ public class Mario extends Sprite {
     public void update(float time) {
 	// Attach sprite image to body
 	setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
-	
-	//Make sprite face right direction that Mario is running
-	if (body.getLinearVelocity().x < 0) {
-	    facingLeft = true;
-	    facingRight = false;
-	    sprite.flip(true, false);
-	}
-	else if (body.getLinearVelocity().x > 0) {
-	    facingRight = true;
-	    facingLeft = false;
-	    sprite.flip(true, false);
-	}
-	    
+
+	// Make sprite face right direction that Mario is running
+
     }
 
     public void createMario() {
@@ -100,11 +91,22 @@ public class Mario extends Sprite {
 	// Create a fixture definition to apply our shape to
 	FixtureDef fixtureDef = new FixtureDef();
 	fixtureDef.shape = circle;
+	circle.dispose();
+	// Set fixture to mario bit
+	fixtureDef.filter.categoryBits = MainGame.MARIO;
+	//Set what mario can collide with
+	fixtureDef.filter.maskBits = MainGame.GROUND | MainGame.BRICK | MainGame.COIN;
 
 	// Create our fixture and attach it to the body
-	body.createFixture(fixtureDef).setUserData(this);;
-
-	circle.dispose();
+	body.createFixture(fixtureDef).setUserData(this);
+	
+	// Create Marios head for block collisions
+	EdgeShape head = new EdgeShape();
+	head.set(new Vector2(-2 / MainGame.PPM, 6 / MainGame.PPM), new Vector2(2 / MainGame.PPM, 6 / MainGame.PPM));
+	fixtureDef.shape = head;
+	// Dont collide with things, just use as sensor
+	fixtureDef.isSensor = true;
+	body.createFixture(fixtureDef).setUserData("head");
     }
 
     // ===================================================================================
@@ -113,50 +115,64 @@ public class Mario extends Sprite {
     // ===================================================================================
     public boolean moveLeft() {
 	// Make sure not moving too fast
-	if (body.getLinearVelocity().x >= -4)
-	    body.applyLinearImpulse(new Vector2(-0.2f, 0), body.getWorldCenter(), true);
+	if (body.getLinearVelocity().x >= -1)
+	    body.applyLinearImpulse(new Vector2(-0.1f, 0), body.getWorldCenter(), true);
 
 	return true;
     }
 
     public boolean moveRight() {
 	// Make sure not moving too fast
-	if (body.getLinearVelocity().x <= 4)
-	    body.applyLinearImpulse(new Vector2(0.2f, 0), body.getWorldCenter(), true);
+	if (body.getLinearVelocity().x <= 1)
+	    body.applyLinearImpulse(new Vector2(0.1f, 0), body.getWorldCenter(), true);
 
 	return true;
     }
 
     public boolean jump() {
-	if (body.getLinearVelocity().y == 0) {
+	// Only let mario jump if hes not already
+	// And if his last state was running or standing, to avoid getting stuck rising
+	// into block
+	if (currentState != State.JUMPING) {
 	    body.applyLinearImpulse(new Vector2(0, 4f), body.getWorldCenter(), true);
-	   // currentState = State.JUMPING;
+	    currentState = State.JUMPING;
 	}
 
 	return true;
     }
-/*
-    public void stopMoving() {
-	// currentState = State.STANDING;
-	body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
-    }
 
     public void updateState() {
+
+	// If mario is in a new state, save current as previous state
+	if (currentState != getState())
+	    previousState = currentState;
+
+	// update current state
+	currentState = getState();
+
+    }
+
+    private State getState() {
+
 	// if(marioIsDead)
 	// return State.DEAD;
 
-	if (body.getLinearVelocity().y > 0 || body.getLinearVelocity().y < 0)
-	    currentState = State.JUMPING;
+	if ((body.getLinearVelocity().y > 0 && currentState == State.JUMPING)
+		|| (body.getLinearVelocity().y < 0 && previousState == State.JUMPING))
+	    return State.JUMPING;
+
+	else if (body.getLinearVelocity().y < 0)
+	    return State.FALLING;
 
 	// if mario is positive or negative in the X axis he is running
 	else if (body.getLinearVelocity().x != 0)
-	    currentState = State.RUNNING;
+	    return State.RUNNING;
 
 	// if none of these return then he must be standing
 	else
-	    currentState = State.STANDING;
+	    return State.STANDING;
     }
-*/
+
     // ===================================================================================
     // ==================================== Getters
     // ====================================

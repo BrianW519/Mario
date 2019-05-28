@@ -34,9 +34,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import mario.objects.Mario;
-import mario.objects.Mario.State;
+
 import mario.game.CollisionListener;
+import mario.objects.Brick;
+import mario.objects.Coin;
+import mario.sprite.Mario;
+import mario.sprite.Mario.State;
 
 public class GameScreen implements Screen {
 
@@ -88,8 +91,6 @@ public class GameScreen implements Screen {
 	// Set Game Camera Position at beginning
 	gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
-	// world.setContactListener(new CollisionListener());
-
 	game.batch.enableBlending();
 
 	// Create world where all bodies will be stored
@@ -100,6 +101,9 @@ public class GameScreen implements Screen {
 	createWorld(world);
 	// Create Mario
 	mario = new Mario(world, this);
+	
+	//Set collision detection listener
+	world.setContactListener(new CollisionListener());
 
     }
 
@@ -124,16 +128,8 @@ public class GameScreen implements Screen {
 
 	// Create Bricks
 	for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
-	    Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-	    bdef.type = BodyDef.BodyType.StaticBody;
-	    bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM, (rect.getY() + rect.getHeight() / 2) / PPM);
-
-	    body = world.createBody(bdef);
-
-	    shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
-	    fdef.shape = shape;
-	    body.createFixture(fdef);
+	    //Create new brick, give it the gamescreen
+	    new Brick(this, object);
 	}
 
 	// Create Pipes
@@ -152,36 +148,25 @@ public class GameScreen implements Screen {
 
 	// Create Coins
 	for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
-	    Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-	    bdef.type = BodyDef.BodyType.StaticBody;
-	    bdef.position.set((rect.getX() + rect.getWidth() / 2) / PPM, (rect.getY() + rect.getHeight() / 2) / PPM);
-
-	    body = world.createBody(bdef);
-
-	    shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
-	    fdef.shape = shape;
-	    body.createFixture(fdef);
+	  //Create new brick, give it the gamescreen
+	    new Coin(this, object);
 	}
     }
 
     private void keyPressCheck(float time) {
 	// If Mario goes left
-	if (Gdx.input.isKeyPressed(LEFT) && mario.body.getLinearVelocity().x >= -2)
-	    mario.body.applyLinearImpulse(new Vector2(-0.1f, 0), mario.body.getWorldCenter(), true);
+	if (Gdx.input.isKeyPressed(LEFT))
+	    mario.moveLeft();
 
 	// If Mario goes right
-	if (Gdx.input.isKeyPressed(RIGHT) && mario.body.getLinearVelocity().x <= 2)
-	    mario.body.applyLinearImpulse(new Vector2(0.1f, 0), mario.body.getWorldCenter(), true);
+	if (Gdx.input.isKeyPressed(RIGHT))
+	    mario.moveRight();
 
 	// If Mario jumps
-	if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP))
+	if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP)) {
 	    mario.jump();
+	}
 
-	// If not going right or left, set horizontal velocity to 0
-	// if(!Gdx.input.isKeyPressed(LEFT) && !Gdx.input.isKeyPressed(RIGHT))
-	// mario.body.setLinearVelocity(new Vector2(0,
-	// mario.body.getLinearVelocity().y));
     }
 
     private void update(float time) {
@@ -194,7 +179,7 @@ public class GameScreen implements Screen {
 	// update Mario
 	mario.update(time);
 	// Update his state
-	// mario.updateState();
+	mario.updateState();
 
 	// Set game cam to mario position
 	if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
@@ -272,4 +257,12 @@ public class GameScreen implements Screen {
 	// TODO Auto-generated method stub
 
     }
+
+    public World getWorld() {
+	return world;
+    }
+    
+    public TiledMap getMap() {
+   	return map;
+       }
 }
