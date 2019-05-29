@@ -20,8 +20,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.Array;
-import mario.game.GameScreen;
 import mario.game.MainGame;
+import mario.screens.GameScreen;
 
 
 public class Goomba extends Sprite {

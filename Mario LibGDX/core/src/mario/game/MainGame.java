@@ -2,15 +2,19 @@ package mario.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import mario.screens.GameScreen;
+import mario.screens.StartScreen;
 
 
 public class MainGame extends Game {
 
 	//Virtual Screen size and Box2D Scale(Pixels Per Meter)
-	public static final int		V_WIDTH			= 400;
-	public static final int		V_HEIGHT		= 208;
+	public static final int		V_WIDTH		= 400;
+	public static final int		V_HEIGHT	= 208;
 	//Make PPM float to fix division problem
-	public static final float	PPM				= 100;
+	public static final float	PPM			= 100;
+
+	public static Game				game;
 
 	public SpriteBatch			batch;
 
@@ -29,10 +33,10 @@ public class MainGame extends Game {
 
 	@Override public void create() {
 		batch = new SpriteBatch();
-
+		game = this;
 		//Set screen to the game screen (should start at beginning screen)
-		//Pass this class so it has dimensions, PPM, and spritebatch
-		setScreen(new GameScreen(this));
+		//Pass this class so it has dimensions, PPM, and spritebatch 
+		setScreen(new StartScreen(this));
 	}
 
 	@Override public void dispose() {

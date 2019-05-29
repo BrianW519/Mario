@@ -12,56 +12,57 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-
-import mario.game.GameScreen;
+import mario.screens.GameScreen;
 import mario.sprite.Mario;
 
+
 public abstract class interactiveObject {
-    protected World world;
-    protected TiledMap map;
-    protected Rectangle bounds;
-    protected Body body;
-    protected GameScreen screen;
-    protected MapObject object;
 
-    protected Fixture fixture;
+	protected World			world;
+	protected TiledMap		map;
+	protected Rectangle		bounds;
+	protected Body			body;
+	protected GameScreen	screen;
+	protected MapObject		object;
 
-    public interactiveObject(GameScreen screen, MapObject object) {
-	this.object = object;
-	this.screen = screen;
-	this.world = screen.getWorld();
-	this.map = screen.getMap();
-	this.bounds = ((RectangleMapObject) object).getRectangle();
+	protected Fixture		fixture;
 
-	BodyDef bdef = new BodyDef();
-	FixtureDef fdef = new FixtureDef();
-	PolygonShape shape = new PolygonShape();
+	public interactiveObject(GameScreen screen, MapObject object) {
+		this.object = object;
+		this.screen = screen;
+		this.world = screen.getWorld();
+		this.map = screen.getMap();
+		this.bounds = ((RectangleMapObject) object).getRectangle();
 
-	bdef.type = BodyDef.BodyType.StaticBody;
-	bdef.position.set((bounds.getX() + bounds.getWidth() / 2) / GameScreen.PPM,
-		(bounds.getY() + bounds.getHeight() / 2) / GameScreen.PPM);
+		BodyDef bdef = new BodyDef();
+		FixtureDef fdef = new FixtureDef();
+		PolygonShape shape = new PolygonShape();
 
-	body = world.createBody(bdef);
+		bdef.type = BodyDef.BodyType.StaticBody;
+		bdef.position.set((bounds.getX() + bounds.getWidth() / 2) / GameScreen.PPM,
+				(bounds.getY() + bounds.getHeight() / 2) / GameScreen.PPM);
 
-	shape.setAsBox(bounds.getWidth() / 2 / GameScreen.PPM, bounds.getHeight() / 2 / GameScreen.PPM);
-	fdef.shape = shape;
-	fixture = body.createFixture(fdef);
+		body = world.createBody(bdef);
 
-    }
+		shape.setAsBox(bounds.getWidth() / 2 / GameScreen.PPM, bounds.getHeight() / 2 / GameScreen.PPM);
+		fdef.shape = shape;
+		fixture = body.createFixture(fdef);
 
-    //Method for when marios head hits object
-    public abstract void onHeadHit();
-    
-    public void setCategoryFilter(short filterBit){
-        Filter filter = new Filter();
-        filter.categoryBits = filterBit;
-        fixture.setFilterData(filter);
-    }
+	}
 
-    public TiledMapTileLayer.Cell getCell() {
-	TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(1);
-	return layer.getCell((int) (body.getPosition().x * GameScreen.PPM / 16),
-		(int) (body.getPosition().y * GameScreen.PPM / 16));
-    }
+	//Method for when marios head hits object
+	public abstract void onHeadHit();
+
+	public void setCategoryFilter(short filterBit) {
+		Filter filter = new Filter();
+		filter.categoryBits = filterBit;
+		fixture.setFilterData(filter);
+	}
+
+	public TiledMapTileLayer.Cell getCell() {
+		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(1);
+		return layer.getCell((int) (body.getPosition().x * GameScreen.PPM / 16),
+				(int) (body.getPosition().y * GameScreen.PPM / 16));
+	}
 
 }
