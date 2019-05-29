@@ -100,7 +100,7 @@ public class Mario extends Sprite {
 		fixtureDef.filter.maskBits = MainGame.GROUND | MainGame.BRICK | MainGame.COIN | MainGame.OBJECT;
 
 		// Create our fixture and attach it to the body
-		body.createFixture(fixtureDef).setUserData("body");
+		body.createFixture(fixtureDef).setUserData(this);
 
 		// Create Marios head for block collisions
 		EdgeShape head = new EdgeShape();

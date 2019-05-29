@@ -6,9 +6,11 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -23,6 +25,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -37,7 +42,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import mario.game.CollisionListener;
-import mario.game.HUD;
 import mario.game.MainGame;
 import mario.objects.Brick;
 import mario.objects.Coin;
@@ -66,6 +70,11 @@ public class StartScreen extends GameScreen {
 	// Images
 	private TextureAtlas				images;
 
+	private Stage						stage;
+	private Table						table;
+	private Label						instructionsLabel;
+	private Label						startLabel;
+
 	// Add PPM here too to shorten code
 	public static final float			PPM		= MainGame.PPM;
 	private World						world;
@@ -74,11 +83,13 @@ public class StartScreen extends GameScreen {
 	Box2DDebugRenderer					debugRender;
 	private OrthographicCamera			gameCam;
 	private Viewport					gamePort;
+	private Viewport					textViewPort;
 
 
 	public StartScreen(MainGame game) {
 		gameCam = new OrthographicCamera();
 		gamePort = new FitViewport(MainGame.V_WIDTH / PPM, MainGame.V_HEIGHT / PPM, gameCam);
+		textViewPort = new FitViewport(MainGame.V_WIDTH, MainGame.V_HEIGHT, new OrthographicCamera());
 
 		super.game = game;
 
@@ -96,6 +107,7 @@ public class StartScreen extends GameScreen {
 		// Create world where all bodies will be stored
 		world = new World(new Vector2(0, -10), true);
 		debugRender = new Box2DDebugRenderer();
+		stage = new Stage(textViewPort, game.batch);
 
 		// Create ground and blocks and all world elements
 		pipes = new ArrayList<Pipe>();
@@ -109,6 +121,25 @@ public class StartScreen extends GameScreen {
 	}
 
 	private void createWorld(World world) {
+		//Create Labels
+		table = new Table();
+		// Top-Align table
+		table.top();
+		// make the table fill the entire stage
+		table.setFillParent(true);
+
+		// define our labels using the String, and a Label style consisting of a font
+		// and color
+		instructionsLabel = new Label("Instructions",
+				new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+		startLabel = new Label("Start",
+				new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+
+		table.add(instructionsLabel).expandX().padTop(10);
+		table.add(startLabel).expandX().padTop(10);
+		stage.addActor(table);
+
+
 		BodyDef bdef = new BodyDef();
 		PolygonShape shape = new PolygonShape();
 		FixtureDef fdef = new FixtureDef();

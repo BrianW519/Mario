@@ -2,6 +2,7 @@ package mario.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -10,9 +11,11 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import mario.objects.*;
 import mario.sprite.Mario;
+import mario.sprite.Mario.State;
 
 
 public class CollisionListener implements ContactListener {
+
 
 	@Override public void beginContact(Contact contact) {
 		//Gdx.app.log("Begin Contact", "");
@@ -33,6 +36,8 @@ public class CollisionListener implements ContactListener {
 				object = fixA;
 			}
 
+			
+
 			// if marios head hits coin or brick
 			if (object.getUserData() != null
 					&& interactiveObject.class.isAssignableFrom(object.getUserData().getClass())) {
@@ -40,26 +45,29 @@ public class CollisionListener implements ContactListener {
 			}
 		}
 
-		//If either collision is marios body
-		if (fixA.getUserData() == "body" || fixB.getUserData() == "body") {
-			Fixture body;
-			Fixture object;
+		//If either collision is Mario
+		if (fixA.getUserData() != null && fixB.getUserData() != null) {
+			if (Mario.class.isAssignableFrom(fixA.getUserData().getClass())
+					|| Mario.class.isAssignableFrom(fixB.getUserData().getClass())) {
+				Fixture body;
+				Fixture object;
 
-			// if A is the body
-			if (fixA.getUserData() == "body") {
-				body = fixA;
-				object = fixB;
-			} else {
-				body = fixB;
-				object = fixA;
-			}
+				// if A is the body
+				if (Mario.class.isAssignableFrom(fixA.getUserData().getClass())) {
+					body = fixA;
+					object = fixB;
+				} else {
+					body = fixB;
+					object = fixA;
+				}
 
 
-			// if marios body enters pipe
-			if (object.getUserData() != null
-					&& Pipe.class.isAssignableFrom(object.getUserData().getClass())) {
-				Gdx.app.log("Pipe", "Activated");
-				((Pipe) object.getUserData()).active();
+				// if marios body enters pipe
+				if (object.getUserData() != null
+						&& Pipe.class.isAssignableFrom(object.getUserData().getClass())) {
+					Gdx.app.log("Pipe", "Activated");
+					((Pipe) object.getUserData()).active();
+				}
 			}
 		}
 	}

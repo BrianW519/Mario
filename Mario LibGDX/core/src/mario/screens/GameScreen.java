@@ -36,7 +36,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import mario.game.CollisionListener;
-import mario.game.HUD;
 import mario.game.MainGame;
 import mario.objects.Brick;
 import mario.objects.Coin;
