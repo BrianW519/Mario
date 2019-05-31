@@ -36,11 +36,10 @@ public class Mario extends Sprite {
 	public Body				body;
 	public World			world;
 	public Texture			texture;
-	public Sprite			sprite;
+	//public Sprite			sprite;
 
 	private TextureRegion	marioStanding;
-	private boolean			facingRight;
-	private boolean			facingLeft;
+	public boolean			facingRight;
 
 	public State			currentState;
 	public State			previousState;
@@ -62,10 +61,10 @@ public class Mario extends Sprite {
 
 		// define mario standing image from atlas
 		marioStanding = new TextureRegion(getTexture(), 0, 10, 16, 16);
+		facingRight = true;
 		// set how big it should be
 		setBounds(0, 0, 16 / MainGame.PPM, 16 / MainGame.PPM);
 		setRegion(marioStanding);
-
 	}
 
 	public void update(float time) {
@@ -73,7 +72,14 @@ public class Mario extends Sprite {
 		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
 
 		// Make sprite face right direction that Mario is running
-
+		if((body.getLinearVelocity().x < 0 && facingRight)){
+			flip(true, false);
+            facingRight = false;
+        }
+		if((body.getLinearVelocity().x > 0 && !facingRight)){
+			flip(true, false);
+            facingRight = true;
+        }
 	}
 
 	public void createMario(int x, int y) {

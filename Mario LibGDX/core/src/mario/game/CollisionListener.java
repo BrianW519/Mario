@@ -36,7 +36,7 @@ public class CollisionListener implements ContactListener {
 				object = fixA;
 			}
 
-			
+
 
 			// if marios head hits coin or brick
 			if (object.getUserData() != null
@@ -79,26 +79,29 @@ public class CollisionListener implements ContactListener {
 		Fixture fixA = contact.getFixtureA();
 		Fixture fixB = contact.getFixtureB();
 
-		//If either collision is marios body
-		if (fixA.getUserData() == "body" || fixB.getUserData() == "body") {
-			Fixture body;
-			Fixture object;
+		//If either collision is Mario
+		if (fixA.getUserData() != null && fixB.getUserData() != null) {
+			if (Mario.class.isAssignableFrom(fixA.getUserData().getClass())
+					|| Mario.class.isAssignableFrom(fixB.getUserData().getClass())) {
+				Fixture body;
+				Fixture object;
 
-			// if A is the body
-			if (fixA.getUserData() == "body") {
-				body = fixA;
-				object = fixB;
-			} else {
-				body = fixB;
-				object = fixA;
-			}
+				// if A is the body
+				if (Mario.class.isAssignableFrom(fixA.getUserData().getClass())) {
+					body = fixA;
+					object = fixB;
+				} else {
+					body = fixB;
+					object = fixA;
+				}
 
 
-			// if marios body enters pipe
-			if (object.getUserData() != null
-					&& Pipe.class.isAssignableFrom(object.getUserData().getClass())) {
-				Gdx.app.log("Pipe", "De-Activated");
-				((Pipe) object.getUserData()).inactive();
+				// if marios body enters pipe
+				if (object.getUserData() != null
+						&& Pipe.class.isAssignableFrom(object.getUserData().getClass())) {
+					Gdx.app.log("Pipe", "De-Activated");
+					((Pipe) object.getUserData()).inactive();
+				}
 			}
 		}
 	}

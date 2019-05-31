@@ -9,6 +9,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -69,6 +70,10 @@ public class StartScreen extends GameScreen {
 
 	// Images
 	private TextureAtlas				images;
+	private Texture						textTexture;
+	private Sprite						Logo;
+	private Sprite						startText;
+	private Sprite						instructionsText;
 
 	private Stage						stage;
 	private Table						table;
@@ -95,6 +100,21 @@ public class StartScreen extends GameScreen {
 
 		// Create atlas of images
 		images = new TextureAtlas("assets/Mario_Images.pack");
+		//Create logo text
+		textTexture = new Texture("assets/logo.png");
+		Logo = new Sprite(textTexture);
+		Logo.setSize(120 / PPM, 60 / PPM);
+		Logo.setPosition(140 / PPM, 140 / PPM);
+		//Create start game text
+		textTexture = new Texture("assets/Start Game.png");
+		startText = new Sprite(textTexture);
+		startText.setSize(210 / PPM, 170 / PPM);
+		startText.setPosition(212 / PPM, 40 / PPM);
+		//Create Instructions text
+		textTexture = new Texture("assets/Instructions.png");
+		instructionsText = new Sprite(textTexture);
+		instructionsText.setSize(210 / PPM, 170 / PPM);
+		instructionsText.setPosition(-29 / PPM, 40 / PPM);
 
 		mapLoader = new TmxMapLoader();
 		map = mapLoader.load("assets/Levels/StartMenu.tmx");
@@ -197,12 +217,14 @@ public class StartScreen extends GameScreen {
 
 	protected void keyPressCheck(float time) {
 		// If Mario goes left
-		if (Gdx.input.isKeyPressed(LEFT))
+		if (Gdx.input.isKeyPressed(LEFT)) {
 			mario.moveLeft();
+		}
 
 		// If Mario goes right
-		if (Gdx.input.isKeyPressed(RIGHT))
+		if (Gdx.input.isKeyPressed(RIGHT)) {
 			mario.moveRight();
+		}
 
 		// If Mario jumps
 		if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP)) {
@@ -256,6 +278,10 @@ public class StartScreen extends GameScreen {
 		game.batch.setProjectionMatrix(gameCam.combined);
 		game.batch.begin();
 
+		// Draw Logo and text
+		Logo.draw(game.batch);
+		startText.draw(game.batch);
+		instructionsText.draw(game.batch);
 		// Draw Mario giving sprite batch
 		mario.draw(game.batch);
 

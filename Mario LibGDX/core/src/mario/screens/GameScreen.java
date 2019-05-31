@@ -179,12 +179,14 @@ public class GameScreen implements Screen {
 
 	protected void keyPressCheck(float time) {
 		// If Mario goes left
-		if (Gdx.input.isKeyPressed(LEFT))
+		if (Gdx.input.isKeyPressed(LEFT)) {
 			mario.moveLeft();
+		}
 
 		// If Mario goes right
-		if (Gdx.input.isKeyPressed(RIGHT))
+		if (Gdx.input.isKeyPressed(RIGHT)) {
 			mario.moveRight();
+		}
 
 		// If Mario jumps
 		if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP)) {
