@@ -227,7 +227,7 @@ public class StartScreen extends GameScreen {
 		}
 
 		// If Mario jumps
-		if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP)) {
+		if (Gdx.input.isKeyJustPressed(SPACE) || Gdx.input.isKeyJustPressed(UP)) {
 			mario.jump();
 		}
 

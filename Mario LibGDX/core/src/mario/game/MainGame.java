@@ -14,7 +14,7 @@ public class MainGame extends Game {
 	//Make PPM float to fix division problem
 	public static final float	PPM			= 100;
 
-	public static Game				game;
+	public static Game			game;
 
 	public SpriteBatch			batch;
 
@@ -28,7 +28,7 @@ public class MainGame extends Game {
 	public static final short	OBJECT		= 32;
 	public static final short	ENEMY		= 64;
 	public static final short	ENEMY_HEAD	= 128;
-	public static final short	ITEM		= 256;
+	public static final short	PIPE		= 256;
 	public static final short	MARIO_HEAD	= 512;
 
 	@Override public void create() {

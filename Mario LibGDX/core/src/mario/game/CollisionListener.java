@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import mario.objects.*;
+import mario.sprite.Goomba;
 import mario.sprite.Mario;
 import mario.sprite.Mario.State;
 
@@ -22,53 +23,43 @@ public class CollisionListener implements ContactListener {
 		Fixture fixA = contact.getFixtureA();
 		Fixture fixB = contact.getFixtureB();
 
-		// Check if either in collision is marios head
-		if (fixA.getUserData() == "head" || fixB.getUserData() == "head") {
-			Fixture head;
-			Fixture object;
-
-			// if A is the head
-			if (fixA.getUserData() == "head") {
-				head = fixA;
-				object = fixB;
-			} else {
-				head = fixB;
-				object = fixA;
-			}
+		//Find the two objects colliding using categories defined
+		int collidingObjects = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
 
+		switch (collidingObjects) {
+			//If marios head hits coin or brick
+			//====================================================================================================
+			case MainGame.MARIO_HEAD | MainGame.COIN:
+			case MainGame.MARIO_HEAD | MainGame.BRICK:
+				//if Fixture A is marios head
+				if (fixA.getFilterData().categoryBits == MainGame.MARIO_HEAD)
+					((interactiveObject) fixB.getUserData()).onHeadHit();
+				else
+					((interactiveObject) fixA.getUserData()).onHeadHit();
+				break;
 
-			// if marios head hits coin or brick
-			if (object.getUserData() != null
-					&& interactiveObject.class.isAssignableFrom(object.getUserData().getClass())) {
-				((interactiveObject) object.getUserData()).onHeadHit();
-			}
-		}
+			//If mario is on top of pipe
+			//====================================================================================================
+			case MainGame.MARIO | MainGame.PIPE:
+				//if Fixture A is the pipe
+				if (fixA.getFilterData().categoryBits == MainGame.PIPE)
+					((Pipe) fixA.getUserData()).active();
+				else
+					((Pipe) fixB.getUserData()).active();
+				break;
 
-		//If either collision is Mario
-		if (fixA.getUserData() != null && fixB.getUserData() != null) {
-			if (Mario.class.isAssignableFrom(fixA.getUserData().getClass())
-					|| Mario.class.isAssignableFrom(fixB.getUserData().getClass())) {
-				Fixture body;
-				Fixture object;
+			//If an enemy hits an object
+			//====================================================================================================
+			case MainGame.ENEMY | MainGame.OBJECT:
+				//If fixture A is the enemy
+				Gdx.app.log("Goomba", "Hit Pipe");
+				if (fixA.getFilterData().categoryBits == MainGame.ENEMY)
+					((Goomba) fixA.getUserData()).reverseDir();
+				else
+					((Goomba) fixB.getUserData()).reverseDir();
+				break;
 
-				// if A is the body
-				if (Mario.class.isAssignableFrom(fixA.getUserData().getClass())) {
-					body = fixA;
-					object = fixB;
-				} else {
-					body = fixB;
-					object = fixA;
-				}
-
-
-				// if marios body enters pipe
-				if (object.getUserData() != null
-						&& Pipe.class.isAssignableFrom(object.getUserData().getClass())) {
-					Gdx.app.log("Pipe", "Activated");
-					((Pipe) object.getUserData()).active();
-				}
-			}
 		}
 	}
 

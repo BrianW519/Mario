@@ -40,6 +40,7 @@ import mario.game.MainGame;
 import mario.objects.Brick;
 import mario.objects.Coin;
 import mario.objects.Pipe;
+import mario.sprite.Goomba;
 import mario.sprite.Mario;
 import mario.sprite.Mario.State;
 
@@ -48,6 +49,7 @@ public class GameScreen implements Screen {
 
 	Mario								mario;
 	ArrayList<Pipe>						pipes;
+	Array<Goomba>						goombas;
 
 	// Define Keys
 	private static final int			LEFT	= Keys.DPAD_LEFT;
@@ -103,8 +105,7 @@ public class GameScreen implements Screen {
 		debugRender = new Box2DDebugRenderer();
 
 		// Create ground and blocks and all world elements
-		pipes = new ArrayList<Pipe>();
-		createWorld(world);
+		createWorld();
 		// Create Mario
 		mario = new Mario(world, this, 32, 64);
 
@@ -117,7 +118,7 @@ public class GameScreen implements Screen {
 
 	}
 
-	private void createWorld(World world) {
+	private void createWorld() {
 		BodyDef bdef = new BodyDef();
 		PolygonShape shape = new PolygonShape();
 		FixtureDef fdef = new FixtureDef();
@@ -155,6 +156,7 @@ public class GameScreen implements Screen {
 
 			shape.setAsBox(rect.getWidth() / 2 / PPM, rect.getHeight() / 2 / PPM);
 			fdef.shape = shape;
+			fdef.filter.categoryBits = MainGame.OBJECT;
 			body.createFixture(fdef);
 		}
 
@@ -164,6 +166,15 @@ public class GameScreen implements Screen {
 			new Coin(this, object);
 		}
 
+		// Create Goombas
+		goombas = new Array<Goomba>();
+		for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
+			Rectangle rect = ((RectangleMapObject) object).getRectangle();
+			goombas.add(new Goomba(world, this, rect.getX() / PPM, rect.getY() / PPM));
+			Gdx.app.log("Goomba", "New goomba created at " + rect.getX() / PPM + "," + rect.getY() / PPM);
+		}
+
+		pipes = new ArrayList<Pipe>();
 		/*
 		 * // Create Pipe Tops int numberOfPipes = 0; for (MapObject object :
 		 * map.getLayers().get(6).getObjects().getByType(RectangleMapObject.
@@ -189,7 +200,7 @@ public class GameScreen implements Screen {
 		}
 
 		// If Mario jumps
-		if (Gdx.input.isKeyPressed(SPACE) || Gdx.input.isKeyPressed(UP)) {
+		if (Gdx.input.isKeyJustPressed(SPACE) || Gdx.input.isKeyJustPressed(UP)) {
 			mario.jump();
 		}
 
@@ -202,6 +213,8 @@ public class GameScreen implements Screen {
 					//make pipe inactive so its only used once
 					pipe.inactive();
 				}
+
+			Gdx.app.log("Mario", "Position is " + mario.getX() + "," + mario.getY());
 		}
 
 	}
@@ -217,6 +230,16 @@ public class GameScreen implements Screen {
 		mario.update(time);
 		// Update his state
 		mario.updateState();
+
+		//For all goombas
+		for (Goomba goomba : goombas) {
+			goomba.update(time);
+			//If goomba is close enough to mario, start moving it
+			if (goomba.getX() < mario.getX() + 200 / MainGame.PPM) {
+				goomba.body.setActive(true);
+			}
+
+		}
 
 		// Set game cam to mario position
 		if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
@@ -247,6 +270,9 @@ public class GameScreen implements Screen {
 
 		// Draw Mario giving sprite batch
 		mario.draw(game.batch);
+		//draw all goombas
+		for (Goomba goomba : goombas)
+			goomba.draw(game.batch);
 
 		game.batch.end();
 

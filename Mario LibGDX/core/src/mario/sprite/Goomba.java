@@ -36,86 +36,91 @@ public class Goomba extends Sprite {
 	public Texture			texture;
 	public Sprite			sprite;
 
-	private TextureRegion	marioStanding;
+	private TextureRegion	goombaTexture;
 
 	public State			currentState;
+	private boolean			dir;											//True for Right | False for Left
+	private Vector2			velocity;
 
 	public enum State {
 		ALIVE, DEAD
 	};
 
-	public Goomba(World world, GameScreen screen) {
+	public Goomba(World world, GameScreen screen, float x, float y) {
 		// Get goomba images from atlas
 		super(screen.getImages().findRegion("goomba"));
 		this.world = world;
 
 		// Set Starting Position
-		xPos = 64;
-		yPos = 64;
-		// Create mario body and texture
+		xPos = x;
+		yPos = y;
+
+		velocity = new Vector2(1, -2);
+
+		dir = true; //Start out going left
+		// Create goomba body and texture
 		createGoomba();
+		body.setActive(false);
 
-		// define mario standing image from atlas
-		marioStanding = new TextureRegion(getTexture(), 0, 10, 16, 16);
+		// define goomba standing image from atlas
+		goombaTexture = new TextureRegion(screen.getImages().findRegion("goomba"), 16, 0, 16, 16);
 		// set how big it should be
-		setBounds(0, 0, 16 / MainGame.PPM, 16 / MainGame.PPM);
-		setRegion(marioStanding);
+		setBounds(getX(), getY(), 16 / MainGame.PPM, 16 / MainGame.PPM);
+
 
 	}
 
-	public void update(float time) {
-		// Attach sprite image to body
-		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
-	}
 
 	public void createGoomba() {
-		// Create Body Definition
 		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyType.DynamicBody;
-		// Set body's position in the world
 		bodyDef.position.set(xPos / MainGame.PPM, yPos / MainGame.PPM);
-
-		// Create body in the world using body definition
+		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		body = world.createBody(bodyDef);
 
-		// Create shape for fixture
-		PolygonShape polygon = new PolygonShape();
-		CircleShape circle = new CircleShape();
-		circle.setRadius(5 / MainGame.PPM);
-		polygon.setAsBox(10 / MainGame.PPM, 10 / MainGame.PPM); //
+		FixtureDef fdef = new FixtureDef();
+		CircleShape shape = new CircleShape();
+		shape.setRadius(6 / MainGame.PPM);
+		fdef.filter.categoryBits = MainGame.ENEMY;
+		fdef.filter.maskBits = MainGame.GROUND |
+				MainGame.COIN |
+				MainGame.BRICK |
+				MainGame.ENEMY |
+				MainGame.OBJECT |
+				MainGame.MARIO;
 
-		// Create a fixture definition to apply our shape to
-		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.shape = circle;
-		fixtureDef.density = 35f;
-		fixtureDef.friction = 10f;
-		fixtureDef.restitution = 0.1f; // Make it bounce a little bit
+		fdef.shape = shape;
+		body.createFixture(fdef).setUserData(this);
 
-		// Create our fixture and attach it to the body
-		Fixture fixture = body.createFixture(fixtureDef);
+		//Create head that mario can hit
+		PolygonShape head = new PolygonShape();
+		Vector2[] vertice = new Vector2[4];
+		vertice[0] = new Vector2(-5, 8).scl(1 / MainGame.PPM);
+		vertice[1] = new Vector2(5, 8).scl(1 / MainGame.PPM);
+		vertice[2] = new Vector2(-3, 3).scl(1 / MainGame.PPM);
+		vertice[3] = new Vector2(3, 3).scl(1 / MainGame.PPM);
+		head.set(vertice);
 
-		polygon.dispose();
+		fdef.shape = head;
+		fdef.restitution = 0.5f;
+		fdef.filter.categoryBits = MainGame.ENEMY_HEAD;
+		body.createFixture(fdef).setUserData(this);
+
 	}
 
 	// ===================================================================================
 	// ====================================  Methods  ====================================
 	// ===================================================================================
-	public boolean moveLeft() {
-		// Make sure not moving too fast
-		if (body.getLinearVelocity().x >= -1)
-			body.applyLinearImpulse(new Vector2(-0.2f, 0), body.getWorldCenter(), true);
+	public void update(float time) {
+		// Attach sprite image to body
+		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
 
-		return true;
+		//set speed to velocity specified
+		body.setLinearVelocity(velocity);
 	}
 
-	public boolean moveRight() {
-		// Make sure not moving too fast
-		if (body.getLinearVelocity().x <= 1)
-			body.applyLinearImpulse(new Vector2(0.2f, 0), body.getWorldCenter(), true);
-
-		return true;
+	public void reverseDir() {
+		velocity.x = -velocity.x;
 	}
-
 
 	// ===================================================================================
 	// ====================================  Getters  ====================================

@@ -72,14 +72,14 @@ public class Mario extends Sprite {
 		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
 
 		// Make sprite face right direction that Mario is running
-		if((body.getLinearVelocity().x < 0 && facingRight)){
+		if ((body.getLinearVelocity().x < 0 && facingRight)) {
 			flip(true, false);
-            facingRight = false;
-        }
-		if((body.getLinearVelocity().x > 0 && !facingRight)){
+			facingRight = false;
+		}
+		if ((body.getLinearVelocity().x > 0 && !facingRight)) {
 			flip(true, false);
-            facingRight = true;
-        }
+			facingRight = true;
+		}
 	}
 
 	public void createMario(int x, int y) {
@@ -103,7 +103,7 @@ public class Mario extends Sprite {
 		// Set fixture to mario bit
 		fixtureDef.filter.categoryBits = MainGame.MARIO;
 		//Set what mario can collide with
-		fixtureDef.filter.maskBits = MainGame.GROUND | MainGame.BRICK | MainGame.COIN | MainGame.OBJECT;
+		fixtureDef.filter.maskBits = MainGame.GROUND | MainGame.BRICK | MainGame.COIN | MainGame.PIPE | MainGame.OBJECT;
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef).setUserData(this);
@@ -113,6 +113,7 @@ public class Mario extends Sprite {
 		head.set(new Vector2(-2 / MainGame.PPM, 6 / MainGame.PPM),
 				new Vector2(2 / MainGame.PPM, 6 / MainGame.PPM));
 		fixtureDef.shape = head;
+		fixtureDef.filter.categoryBits = MainGame.MARIO_HEAD;
 		// Dont collide with things, just use as sensor
 		fixtureDef.isSensor = true;
 		body.createFixture(fixtureDef).setUserData("head");

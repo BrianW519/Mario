@@ -24,8 +24,8 @@ public class Pipe extends interactiveObject {
 
 		this.action = action;
 
-		// Set to coin bit
-		setCategoryFilter(MainGame.OBJECT);
+		// Set to object bit
+		setCategoryFilter(MainGame.PIPE);
 
 	}
 
