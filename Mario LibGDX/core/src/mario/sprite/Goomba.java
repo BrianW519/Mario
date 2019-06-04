@@ -26,21 +26,23 @@ import mario.screens.GameScreen;
 
 public class Goomba extends Sprite {
 
-	private float			speed	= 0.5f;										 // 10 pixels per second.
-	private float			xPos;
-	private float			yPos;
+	private float		speed	= 0.5f;										 // 10 pixels per second.
+	private float		xPos;
+	private float		yPos;
+	public float		timer;												//Timer to keep dead goomba on screen shortly
 
 
-	public Body				body;
-	public World			world;
-	public Texture			texture;
-	public Sprite			sprite;
+	public Body			body;
+	public World		world;
+	public Texture		texture;
+	public Sprite		sprite;
 
-	private TextureRegion	goombaTexture;
+	public State		currentState;
+	private Vector2		velocity;
+	public boolean		setToDestroy;
+	public boolean		defeated;
 
-	public State			currentState;
-	private boolean			dir;											//True for Right | False for Left
-	private Vector2			velocity;
+	private GameScreen	screen;
 
 	public enum State {
 		ALIVE, DEAD
@@ -48,26 +50,24 @@ public class Goomba extends Sprite {
 
 	public Goomba(World world, GameScreen screen, float x, float y) {
 		// Get goomba images from atlas
-		super(screen.getImages().findRegion("goomba"));
+		super(screen.getImages().findRegion("goomba"), 16, 0, 16, 16);
 		this.world = world;
+		this.screen = screen;
 
 		// Set Starting Position
 		xPos = x;
 		yPos = y;
 
-		velocity = new Vector2(1, -2);
+		velocity = new Vector2(-1, -2);
+		defeated = false;
+		setToDestroy = false;
+		timer = 0;
 
-		dir = true; //Start out going left
-		// Create goomba body and texture
 		createGoomba();
 		body.setActive(false);
 
-		// define goomba standing image from atlas
-		goombaTexture = new TextureRegion(screen.getImages().findRegion("goomba"), 16, 0, 16, 16);
 		// set how big it should be
 		setBounds(getX(), getY(), 16 / MainGame.PPM, 16 / MainGame.PPM);
-
-
 	}
 
 
@@ -111,16 +111,36 @@ public class Goomba extends Sprite {
 	// ====================================  Methods  ====================================
 	// ===================================================================================
 	public void update(float time) {
-		// Attach sprite image to body
-		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
 
-		//set speed to velocity specified
-		body.setLinearVelocity(velocity);
+		timer += time;
+
+		if (setToDestroy && !defeated) {
+			defeated = true;
+			world.destroyBody(body);
+			body.setUserData(null);
+			body = null;
+			timer = 0;
+
+		} else if (!defeated) {
+			setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);		// Attach sprite image to body
+			body.setLinearVelocity(velocity);																//set speed to velocity specified
+		}
 	}
 
 	public void reverseDir() {
 		velocity.x = -velocity.x;
 	}
+
+
+	public void onHeadHit() {
+		setToDestroy = true;
+		velocity = new Vector2(0, 0);
+		setRegion(new TextureRegion(screen.getImages().findRegion("goomba"), 32, 0, 16, 16));
+		
+		screen.hud.addScore(25);
+	}
+
+
 
 	// ===================================================================================
 	// ====================================  Getters  ====================================

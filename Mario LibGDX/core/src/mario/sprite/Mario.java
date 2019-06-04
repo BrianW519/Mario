@@ -23,11 +23,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.Array;
 import mario.game.MainGame;
 import mario.screens.GameScreen;
+import mario.screens.StartScreen;
 
 
 public class Mario extends Sprite {
 
-	private float			speed	= 1.0f; // 10 pixels per second.
+	private float			speed	= 1.0f; 						// 10 pixels per second.
 	private float			xPos;
 	private float			yPos;
 
@@ -36,7 +37,7 @@ public class Mario extends Sprite {
 	public Body				body;
 	public World			world;
 	public Texture			texture;
-	//public Sprite			sprite;
+	private Screen			screen;
 
 	private TextureRegion	marioStanding;
 	public boolean			facingRight;
@@ -52,10 +53,13 @@ public class Mario extends Sprite {
 		// Get little mario images loaded from atlas
 		super(((GameScreen) screen).getImages().findRegion("little_mario"));
 		this.world = world;
+		this.screen = screen;
 
 		// Set Starting Position
 		xPos = x;
 		yPos = y;
+
+		lives = 3;
 		// Create mario body and texture
 		createMario(x, y);
 
@@ -70,6 +74,8 @@ public class Mario extends Sprite {
 	public void update(float time) {
 		// Attach sprite image to body
 		setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
+
+		checkPositionBounds();															//Check marios position to make sure he doesnt go out of bounds
 
 		// Make sprite face right direction that Mario is running
 		if ((body.getLinearVelocity().x < 0 && facingRight)) {
@@ -103,7 +109,8 @@ public class Mario extends Sprite {
 		// Set fixture to mario bit
 		fixtureDef.filter.categoryBits = MainGame.MARIO;
 		//Set what mario can collide with
-		fixtureDef.filter.maskBits = MainGame.GROUND | MainGame.BRICK | MainGame.COIN | MainGame.PIPE | MainGame.OBJECT;
+		fixtureDef.filter.maskBits = MainGame.GROUND | MainGame.BRICK | MainGame.COIN | MainGame.PIPE
+				| MainGame.OBJECT | MainGame.ENEMY | MainGame.ENEMY_HEAD;
 
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef).setUserData(this);
@@ -122,10 +129,13 @@ public class Mario extends Sprite {
 	// ===================================================================================
 	// ==================================== Methods ======================================
 	// ===================================================================================
+
+	// ==================================== Movement =====================================
 	public boolean moveLeft() {
 		// Make sure not moving too fast
-		if (body.getLinearVelocity().x >= -1)
-			body.applyLinearImpulse(new Vector2(-0.1f, 0), body.getWorldCenter(), true);
+		if (body.getPosition().x > 10 / MainGame.PPM)
+			if (body.getLinearVelocity().x >= -1)
+				body.applyLinearImpulse(new Vector2(-0.1f, 0), body.getWorldCenter(), true);
 
 		return true;
 	}
@@ -150,6 +160,19 @@ public class Mario extends Sprite {
 		return true;
 	}
 
+	public void checkPositionBounds() {
+		if (body.getPosition().x < 10 / MainGame.PPM)
+			body.setLinearVelocity(new Vector2(0, body.getLinearVelocity().y));
+
+		if (body.getPosition().y < -3) {													//If mario falls out of map
+			loseLife();
+			body.setLinearVelocity(new Vector2(0, 0));
+			body.setTransform(new Vector2(body.getPosition().x + .5f, 80 / MainGame.PPM), 0);
+		}
+	}
+
+
+	// ==================================== Other =====================================
 	public void updateState() {
 
 		// If mario is in a new state, save current as previous state
@@ -158,13 +181,9 @@ public class Mario extends Sprite {
 
 		// update current state
 		currentState = getState();
-
 	}
 
 	private State getState() {
-
-		// if(marioIsDead)
-		// return State.DEAD;
 
 		if ((body.getLinearVelocity().y > 0 && currentState == State.JUMPING)
 				|| (body.getLinearVelocity().y < 0 && previousState == State.JUMPING))
@@ -182,10 +201,33 @@ public class Mario extends Sprite {
 			return State.STANDING;
 	}
 
+	public void loseLife() {
+		lives--;
+	}
+
+	public void deadCheck() {
+		if (lives <= 0 || ((GameScreen) screen).hud.isTimeUp()) {								//If mario dies or time is up
+			body.setLinearVelocity(new Vector2(0, 0));
+			flip(false, true);																	//Flip mario upside down
+
+			currentState = State.DEAD;															//Set state to dead
+
+			if (lives <= 0)
+				((GameScreen) screen).hud.gameOver(0);
+			else
+				((GameScreen) screen).hud.gameOver(1);
+
+		}
+	}
+
 	// ===================================================================================
 	// ==================================== Getters ======================================
 	// ==================================== & Setters ====================================
 	// ===================================================================================
+	public int getLives() {
+		return lives;
+	}
+
 	public float getSpeed() {
 		return speed;
 	}

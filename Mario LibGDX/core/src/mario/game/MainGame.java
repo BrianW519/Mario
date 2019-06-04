@@ -15,6 +15,7 @@ public class MainGame extends Game {
 	public static final float	PPM			= 100;
 
 	public static Game			game;
+	public Levels				levels;
 
 	public SpriteBatch			batch;
 
@@ -34,6 +35,9 @@ public class MainGame extends Game {
 	@Override public void create() {
 		batch = new SpriteBatch();
 		game = this;
+		
+		levels = new Levels(3);
+		
 		//Set screen to the game screen (should start at beginning screen)
 		//Pass this class so it has dimensions, PPM, and spritebatch 
 		setScreen(new StartScreen(this));

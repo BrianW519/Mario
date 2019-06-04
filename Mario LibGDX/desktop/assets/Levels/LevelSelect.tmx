@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="26" height="13" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="63">
+ <tileset firstgid="1" source="tileset_gutter.tsx"/>
+ <layer id="10" name="background" width="26" height="13">
+  <data encoding="base64" compression="zlib">
+   eJzbycTAsJPGGARobceoPaP2jNozas9A2QMAwUDtaA==
+  </data>
+ </layer>
+ <layer id="11" name="graphics" width="26" height="13">
+  <data encoding="base64" compression="zlib">
+   eJxjYKAfmMrEwDANiqcz0c6sbUD+dijegcMeZP343ESMWfgAsn5KzBkugGXUHqrZw8nIwMDFiF09qXJCjAh7zIBscyR5LSBbG4hNGSFyyPIwORgwRZJHlxMEsk2gfEY6YHraAwATQRZD
+  </data>
+ </layer>
+ <objectgroup id="7" name="Ground">
+  <object id="3" x="0" y="176" width="400" height="32"/>
+  <object id="46" x="400" y="32" width="16" height="144"/>
+  <object id="58" x="0" y="96" width="16" height="80"/>
+ </objectgroup>
+ <objectgroup id="4" name="Pipes">
+  <object id="51" x="192" y="160" width="32" height="16"/>
+  <object id="52" x="304" y="160" width="32" height="16"/>
+  <object id="56" x="80" y="160" width="32" height="16"/>
+ </objectgroup>
+ <objectgroup id="5" name="Pipe Tops">
+  <object id="59" x="80" y="144" width="32" height="16"/>
+  <object id="60" x="192" y="144" width="32" height="16"/>
+  <object id="62" x="304" y="144" width="32" height="16"/>
+ </objectgroup>
+</map>

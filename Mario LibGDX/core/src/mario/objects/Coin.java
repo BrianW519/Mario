@@ -22,6 +22,8 @@ public class Coin extends interactiveObject {
 		// Set to destroyed bit
 		setCategoryFilter(MainGame.DESTROYED);
 		getCell().setTile(null);
+		
+		screen.hud.addScore(15);
 	}
 
 }

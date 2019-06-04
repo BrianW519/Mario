@@ -51,7 +51,7 @@ import mario.sprite.Mario;
 import mario.sprite.Mario.State;
 
 
-public class StartScreen extends GameScreen {
+public class LevelScreen extends GameScreen {
 
 	Mario								mario;
 	ArrayList<Pipe>						pipes;
@@ -71,9 +71,9 @@ public class StartScreen extends GameScreen {
 	// Images
 	private TextureAtlas				images;
 	private Texture						textTexture;
-	private Sprite						Logo;
-	private Sprite						startText;
-	private Sprite						instructionsText;
+	private Sprite						level1;
+	private Sprite						level2;
+	private Sprite						level3;
 
 
 	// Add PPM here too to shorten code
@@ -90,7 +90,7 @@ public class StartScreen extends GameScreen {
 	// ===================================================================================
 	// ================================= Constructor =====================================
 	// ===================================================================================
-	public StartScreen(MainGame game) {
+	public LevelScreen(MainGame game) {
 		gameCam = new OrthographicCamera();
 		gamePort = new FitViewport(MainGame.V_WIDTH / PPM, MainGame.V_HEIGHT / PPM, gameCam);
 		textViewPort = new FitViewport(MainGame.V_WIDTH, MainGame.V_HEIGHT, new OrthographicCamera());
@@ -99,24 +99,32 @@ public class StartScreen extends GameScreen {
 
 		// Create atlas of images
 		images = new TextureAtlas("assets/Mario_Images.pack");
-		//Create logo text
-		textTexture = new Texture("assets/logo.png");
-		Logo = new Sprite(textTexture);
-		Logo.setSize(120 / PPM, 60 / PPM);
-		Logo.setPosition(140 / PPM, 140 / PPM);
-		//Create start game text
-		textTexture = new Texture("assets/Start Game.png");
-		startText = new Sprite(textTexture);
-		startText.setSize(210 / PPM, 170 / PPM);
-		startText.setPosition(212 / PPM, 40 / PPM);
-		//Create Instructions text
-		textTexture = new Texture("assets/Instructions.png");
-		instructionsText = new Sprite(textTexture);
-		instructionsText.setSize(210 / PPM, 170 / PPM);
-		instructionsText.setPosition(-29 / PPM, 40 / PPM);
+
+		//Create level text images
+
+		textTexture = new Texture("assets/level1.png");
+		level1 = new Sprite(textTexture);
+		level1.setSize(90 / PPM, 50 / PPM);
+		level1.setPosition(53 / PPM, 90 / PPM);
+
+		if (game.levels.isUnlocked(2))
+			textTexture = new Texture("assets/level2.png");
+		else
+			textTexture = new Texture("assets/level2Gray.png");								//Draw level as gray if locked
+		level2 = new Sprite(textTexture);
+		level2.setSize(90 / PPM, 50 / PPM);
+		level2.setPosition(164 / PPM, 90 / PPM);
+
+		if (game.levels.isUnlocked(3))
+			textTexture = new Texture("assets/level3.png");
+		else
+			textTexture = new Texture("assets/level3Gray.png");								//Draw level as gray if locked
+		level3 = new Sprite(textTexture);
+		level3.setSize(90 / PPM, 50 / PPM);
+		level3.setPosition(276 / PPM, 90 / PPM);
 
 		mapLoader = new TmxMapLoader();
-		map = mapLoader.load("assets/Levels/StartMenu.tmx");
+		map = mapLoader.load("assets/Levels/LevelSelect.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
 		// Set Game Camera Position at beginning
 		gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
@@ -127,12 +135,11 @@ public class StartScreen extends GameScreen {
 		world = new World(new Vector2(0, -10), true);
 		debugRender = new Box2DDebugRenderer();
 
-
 		// Create ground and blocks and all world elements
 		pipes = new ArrayList<Pipe>();
 		createWorld(world);
 		// Create Mario
-		mario = new Mario(world, this, 200, 32);
+		mario = new Mario(world, this, 32, 64);
 
 		//Set collision detection listener
 		world.setContactListener(new CollisionListener());
@@ -143,9 +150,6 @@ public class StartScreen extends GameScreen {
 	// ================================= Create World ====================================
 	// ===================================================================================
 	private void createWorld(World world) {
-
-
-
 		BodyDef bdef = new BodyDef();
 		PolygonShape shape = new PolygonShape();
 		FixtureDef fdef = new FixtureDef();
@@ -165,14 +169,8 @@ public class StartScreen extends GameScreen {
 			body.createFixture(fdef);
 		}
 
-		// Create Bricks - NON BREAKABLE
-		for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
-			//Create new brick, give it the gamescreen
-			new Brick(this, object, false);
-		}
-
 		// Create Pipes
-		for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
+		for (MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
 			Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
 			bdef.type = BodyDef.BodyType.StaticBody;
@@ -187,13 +185,15 @@ public class StartScreen extends GameScreen {
 		}
 
 		// Create Pipe Tops
-		int numberOfPipes = 2;
-		for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)) {
+		int numberOfPipes = 3;
+		for (MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
 			//Depending on which pipe, assign action
+			if (numberOfPipes == 3)
+				pipes.add(new Pipe(this, object, "Level 1"));
 			if (numberOfPipes == 2)
-				pipes.add(new Pipe(this, object, "Instructions"));
+				pipes.add(new Pipe(this, object, "Level 2"));
 			if (numberOfPipes == 1)
-				pipes.add(new Pipe(this, object, "Start Game"));
+				pipes.add(new Pipe(this, object, "Level 3"));
 
 			numberOfPipes--;
 		}
@@ -267,9 +267,10 @@ public class StartScreen extends GameScreen {
 		game.batch.begin();
 
 		// Draw Logo and text
-		Logo.draw(game.batch);
-		startText.draw(game.batch);
-		instructionsText.draw(game.batch);
+		level1.draw(game.batch);
+		level2.draw(game.batch);
+		level3.draw(game.batch);
+
 		// Draw Mario giving sprite batch
 		mario.draw(game.batch);
 

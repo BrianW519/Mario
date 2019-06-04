@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="25" height="13" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="43">
+<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="26" height="13" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="49">
  <tileset firstgid="1" source="tileset_gutter.tsx"/>
- <layer id="1" name="background" width="25" height="13" locked="1">
+ <layer id="10" name="background" width="26" height="13">
   <data encoding="base64" compression="zlib">
-   eJzbycTAsHMUj+JRPIpHMRgDAMhC7Wg=
+   eJzbycTAsJPGGARobceoPaP2jNozas9A2QMAwUDtaA==
   </data>
  </layer>
- <layer id="3" name="graphics" width="25" height="13">
+ <layer id="11" name="graphics" width="26" height="13">
   <data encoding="base64" compression="zlib">
-   eJxjYKAPmMrEwDANiqcz0casbUD2dijeQaEd1DRrMAJmKB7sZlILMDNQx32cjAwMXEDMQqI+FiS9hIAWUI021A5i7YGphelFBkJAvhkUmzNitwOEkeWRgSmaOnQ7BIFsEyAGCQ0HDABH9g4r
+   eJxjYKAfmMrEwDANiqcz0c6sbUD+dijeQaE91DRrsANmKB7sZlIbMDNQz52cjAwMXEDMQqI+FiS9xAAtoDptqD3E2gVTC9OLDISgfDNGCDZnxG4PCwOqPDIwRVOHbo8gkG0C5TPSAdPTHgBbRA4r
   </data>
  </layer>
  <objectgroup id="7" name="Ground">
   <object id="3" x="0" y="176" width="400" height="32"/>
+  <object id="46" x="400" y="32" width="16" height="144"/>
  </objectgroup>
  <objectgroup id="6" name="Bricks">
   <object id="12" x="352" y="80" width="16" height="16"/>

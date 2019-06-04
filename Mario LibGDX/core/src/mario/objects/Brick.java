@@ -28,6 +28,8 @@ public class Brick extends interactiveObject {
 			//Set to destroyed bit
 			setCategoryFilter(MainGame.DESTROYED);
 			getCell().setTile(null);
+			
+			screen.hud.addScore(5);
 		}
 
 	}

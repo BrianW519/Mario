@@ -8,10 +8,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -23,6 +25,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -47,6 +50,8 @@ import mario.sprite.Mario.State;
 
 public class GameScreen implements Screen {
 
+	public MainGame						game;
+
 	Mario								mario;
 	ArrayList<Pipe>						pipes;
 	Array<Goomba>						goombas;
@@ -59,17 +64,18 @@ public class GameScreen implements Screen {
 	private static final int			SPACE	= Keys.SPACE;
 
 	// Loads Maps
+	public int							level;
 	private TmxMapLoader				mapLoader;
 	private TiledMap					map;
+	private MapProperties				mapProperties;
 	private OrthogonalTiledMapRenderer	renderer;
 
 	// Images
 	private TextureAtlas				images;
 
-	public MainGame						game;
 	// Add PPM here too to shorten code
 	public static final float			PPM		= MainGame.PPM;
-	private HUD							hud;
+	public HUD							hud;
 	private World						world;
 
 	Box2DDebugRenderer					debugRender;
@@ -78,39 +84,49 @@ public class GameScreen implements Screen {
 
 	private CollisionListener			contactListener;
 
-	public GameScreen(MainGame game) {
+
+	// ===================================================================================
+	// ================================= Constructor =====================================
+	// ===================================================================================
+	public GameScreen(MainGame game, int level) {
 
 		gameCam = new OrthographicCamera();
 		gamePort = new FitViewport(MainGame.V_WIDTH / PPM, MainGame.V_HEIGHT / PPM, gameCam);
 
 		this.game = game;
+		this.level = level;
 
 		// Create Game HUD with time and points (takes in sprite batch from MainGame)
 		hud = new HUD(game.batch);
 
-		// Create atlas of images
-		images = new TextureAtlas("assets/Mario_Images.pack");
+		images = new TextureAtlas("assets/Mario_Images.pack");								// Create atlas of images
 
-		// Load Level and render it
-		mapLoader = new TmxMapLoader();
-		map = mapLoader.load("assets/Levels/Level1.tmx");
+		mapLoader = new TmxMapLoader();														// Load Level and render it
+		switch (level) {
+			case 1:
+				map = mapLoader.load("assets/Levels/Level1.tmx");
+				break;
+			case 2:
+				map = mapLoader.load("assets/Levels/Level2.tmx");
+				break;
+			case 3:
+				map = mapLoader.load("assets/Levels/Level3.tmx");
+				break;
+		}
+		mapProperties = map.getProperties();												//Get map properties for width later
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
 		// Set Game Camera Position at beginning
 		gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
 		game.batch.enableBlending();
 
-		// Create world where all bodies will be stored
-		world = new World(new Vector2(0, -10), true);
+		world = new World(new Vector2(0, -10), true);										// Create world where all bodies will be stored
 		debugRender = new Box2DDebugRenderer();
 
-		// Create ground and blocks and all world elements
-		createWorld();
-		// Create Mario
-		mario = new Mario(world, this, 32, 64);
+		createWorld();																		// Create ground and blocks and all world elements
+		mario = new Mario(world, this, 32, 64);												//Create Mario
 
-		//Set collision detection listener
-		world.setContactListener(new CollisionListener());
+		world.setContactListener(new CollisionListener());									//Set collision detection listener
 
 	}
 
@@ -118,6 +134,9 @@ public class GameScreen implements Screen {
 
 	}
 
+	// ===================================================================================
+	// ================================= Create World ====================================
+	// ===================================================================================
 	private void createWorld() {
 		BodyDef bdef = new BodyDef();
 		PolygonShape shape = new PolygonShape();
@@ -170,24 +189,31 @@ public class GameScreen implements Screen {
 		goombas = new Array<Goomba>();
 		for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
 			Rectangle rect = ((RectangleMapObject) object).getRectangle();
-			goombas.add(new Goomba(world, this, rect.getX() / PPM, rect.getY() / PPM));
-			Gdx.app.log("Goomba", "New goomba created at " + rect.getX() / PPM + "," + rect.getY() / PPM);
+			goombas.add(new Goomba(world, this, rect.getX(), rect.getY()));
+			Gdx.app.log("Goomba", "New goomba created");
 		}
 
+
 		pipes = new ArrayList<Pipe>();
-		/*
-		 * // Create Pipe Tops int numberOfPipes = 0; for (MapObject object :
-		 * map.getLayers().get(6).getObjects().getByType(RectangleMapObject.
-		 * class)) { //Create new pipe, give it the gamescreen
-		 * 
-		 * //Depending on which pipe, assign action if (numberOfPipes == 2)
-		 * pipes.add(new Pipe(this, object, "Instructions")); if (numberOfPipes
-		 * == 1) pipes.add(new Pipe(this, object, "Start Game"));
-		 * 
-		 * numberOfPipes--; }
-		 */
+
+		// Create Pipe Tops 
+		int numberOfPipes = 1;
+		for (MapObject object : map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)) { //Create new pipe, give it the gamescreen
+
+			//Depending on which pipe, assign action 
+			if (numberOfPipes == 1)
+				pipes.add(new Pipe(this, object, "Finish Level"));
+
+
+			numberOfPipes--;
+		}
+
+
 	}
 
+	// ===================================================================================
+	// =============================== Update + Render ===================================
+	// ===================================================================================
 	protected void keyPressCheck(float time) {
 		// If Mario goes left
 		if (Gdx.input.isKeyPressed(LEFT)) {
@@ -220,40 +246,50 @@ public class GameScreen implements Screen {
 	}
 
 	private void update(float time) {
-		// Check if any keys are pressed
-		keyPressCheck(time);
+		keyPressCheck(time);																// Check if any keys are pressed
 
-		// Step world 60 frames every second
-		world.step(1 / 60f, 6, 2);
+		world.step(1 / 60f, 6, 2);															// Step world 60 frames every second
 
-		// update Mario
-		mario.update(time);
-		// Update his state
-		mario.updateState();
+		mario.update(time);																	// Update Mario
+		mario.updateState();																// Update his state
+		mario.deadCheck();																	// Check if mario is dead
 
 		//For all goombas
 		for (Goomba goomba : goombas) {
 			goomba.update(time);
-			//If goomba is close enough to mario, start moving it
-			if (goomba.getX() < mario.getX() + 200 / MainGame.PPM) {
+			if (goomba.getX() < mario.getX() + 300 / MainGame.PPM && !goomba.setToDestroy)	//If goomba is close enough to mario, start moving it
 				goomba.body.setActive(true);
-			}
 
+			if (goomba.getX() < mario.getX() - 300 && !goomba.setToDestroy)
+				goomba.body.setActive(false);
 		}
 
-		// Set game cam to mario position
-		if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)
-			gameCam.position.x = mario.body.getPosition().x;
-		// Update camera
-		gameCam.update();
-		// Render what is showing on the camera
-		renderer.setView(gameCam);
+		hud.update(time, mario.getLives());													//Update the HUD with the time
+
+		if (mario.body.getPosition().x > gamePort.getWorldWidth() / 2)						// Set game cam to mario position
+			if (mario.body.getPosition().x < 36)
+				gameCam.position.x = mario.body.getPosition().x;
+
+		gameCam.update();																	// Update camera
+		renderer.setView(gameCam);															// Render what is showing on the camera
 	}
 
 	@Override public void render(float delta) {
-		// Updates keys and camera and other things
-		// Do this BEFORE rendering
-		update(delta);
+		//Do this at beginning to render game over text first
+		if (mario.currentState == State.DEAD) {
+			try {
+				Thread.sleep(6000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//Set back to start screen
+			game.setScreen(new StartScreen(game));
+		}
+
+
+
+		update(delta);																		//Updates keys and camera and other things
 
 		// Clear and replace background with color
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -263,7 +299,7 @@ public class GameScreen implements Screen {
 		renderer.render();
 
 		// Show Debug render lines
-		debugRender.render(world, gameCam.combined);
+		//debugRender.render(world, gameCam.combined);
 
 		game.batch.setProjectionMatrix(gameCam.combined);
 		game.batch.begin();
@@ -272,15 +308,24 @@ public class GameScreen implements Screen {
 		mario.draw(game.batch);
 		//draw all goombas
 		for (Goomba goomba : goombas)
-			goomba.draw(game.batch);
+			if (!goomba.defeated || goomba.timer < 1)
+				goomba.draw(game.batch);
+
 
 		game.batch.end();
 
 		// Now draw HUD display on top
 		game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
 		hud.stage.draw();
+
+
 	}
 
+
+	// ===================================================================================
+	// ==================================== Getters ======================================
+	// ==================================== & Setters ====================================
+	// ===================================================================================
 	public TextureAtlas getImages() {
 		return images;
 	}

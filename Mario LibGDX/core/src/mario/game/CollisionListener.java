@@ -26,40 +26,66 @@ public class CollisionListener implements ContactListener {
 		//Find the two objects colliding using categories defined
 		int collidingObjects = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
+		//Make sure both arent deleted bodies
+		if (fixA != null & fixB != null) {
+			switch (collidingObjects) {
+				//If marios head hits coin or brick
+				//====================================================================================================
+				case MainGame.MARIO_HEAD | MainGame.COIN:
+				case MainGame.MARIO_HEAD | MainGame.BRICK:
+					//if Fixture A is marios head
+					if (fixA.getFilterData().categoryBits == MainGame.MARIO_HEAD)
+						((interactiveObject) fixB.getUserData()).onHeadHit();
+					else
+						((interactiveObject) fixA.getUserData()).onHeadHit();
+					break;
 
-		switch (collidingObjects) {
-			//If marios head hits coin or brick
-			//====================================================================================================
-			case MainGame.MARIO_HEAD | MainGame.COIN:
-			case MainGame.MARIO_HEAD | MainGame.BRICK:
-				//if Fixture A is marios head
-				if (fixA.getFilterData().categoryBits == MainGame.MARIO_HEAD)
-					((interactiveObject) fixB.getUserData()).onHeadHit();
-				else
-					((interactiveObject) fixA.getUserData()).onHeadHit();
-				break;
+				//If mario is on top of pipe
+				//====================================================================================================
+				case MainGame.MARIO | MainGame.PIPE:
+					//if Fixture A is the pipe
+					if (fixA.getFilterData().categoryBits == MainGame.PIPE)
+						((Pipe) fixA.getUserData()).active();
+					else
+						((Pipe) fixB.getUserData()).active();
+					break;
 
-			//If mario is on top of pipe
-			//====================================================================================================
-			case MainGame.MARIO | MainGame.PIPE:
-				//if Fixture A is the pipe
-				if (fixA.getFilterData().categoryBits == MainGame.PIPE)
-					((Pipe) fixA.getUserData()).active();
-				else
-					((Pipe) fixB.getUserData()).active();
-				break;
+				//If an enemy hits an object or another enemy
+				//====================================================================================================
+				case MainGame.ENEMY | MainGame.OBJECT:
+				case MainGame.ENEMY | MainGame.COIN:
+				case MainGame.ENEMY | MainGame.ENEMY:
+					//Two ifs so both goombas can reverse direction
+					if (fixA.getFilterData().categoryBits == MainGame.ENEMY)
+						((Goomba) fixA.getUserData()).reverseDir();
+					if (fixB.getFilterData().categoryBits == MainGame.ENEMY)
+						((Goomba) fixB.getUserData()).reverseDir();
+					break;
 
-			//If an enemy hits an object
-			//====================================================================================================
-			case MainGame.ENEMY | MainGame.OBJECT:
-				//If fixture A is the enemy
-				Gdx.app.log("Goomba", "Hit Pipe");
-				if (fixA.getFilterData().categoryBits == MainGame.ENEMY)
-					((Goomba) fixA.getUserData()).reverseDir();
-				else
-					((Goomba) fixB.getUserData()).reverseDir();
-				break;
+				//If mario jumps on enemy
+				//====================================================================================================
+				case MainGame.MARIO | MainGame.ENEMY_HEAD:
+					//If fixture A is the enemy
+					Gdx.app.log("Goomba", "Squashed");
+					if (fixA.getFilterData().categoryBits == MainGame.ENEMY_HEAD)
+						((Goomba) fixA.getUserData()).onHeadHit();
+					else
+						((Goomba) fixB.getUserData()).onHeadHit();
+					break;
 
+				//If mario gets hit by enemy
+				//====================================================================================================
+				case MainGame.MARIO | MainGame.ENEMY:
+					//If fixture A is the enemy
+					Gdx.app.log("Mario", "Hit By Enemy | Lost Life");
+					if (fixA.getFilterData().categoryBits == MainGame.MARIO)
+						((Mario) fixA.getUserData()).loseLife();
+					else
+						((Mario) fixB.getUserData()).loseLife();
+					break;
+
+
+			}
 		}
 	}
 
@@ -90,7 +116,6 @@ public class CollisionListener implements ContactListener {
 				// if marios body enters pipe
 				if (object.getUserData() != null
 						&& Pipe.class.isAssignableFrom(object.getUserData().getClass())) {
-					Gdx.app.log("Pipe", "De-Activated");
 					((Pipe) object.getUserData()).inactive();
 				}
 			}
