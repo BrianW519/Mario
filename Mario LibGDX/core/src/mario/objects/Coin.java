@@ -12,18 +12,17 @@ public class Coin extends interactiveObject {
 	public Coin(GameScreen screen, MapObject object) {
 		super(screen, object);
 		fixture.setUserData(this);
-		// Set to coin bit
-		setCategoryFilter(MainGame.COIN);
+		setCategoryFilter(MainGame.COIN);						// Set to coin ID
 
 	}
 
 	@Override public void onHeadHit() {
-		Gdx.app.log("Coin", "Collision");
-		// Set to destroyed bit
-		setCategoryFilter(MainGame.DESTROYED);
-		getCell().setTile(null);
-		
-		screen.hud.addScore(15);
-	}
+		Gdx.app.log("Coin", "Broken");
+
+			setCategoryFilter(MainGame.DESTROYED);				//Set to destroyed ID (not collidable)
+			getCell().setTile(null);							//Clear the texture
+			
+			screen.hud.addScore(15);							//Add points
+		}
 
 }

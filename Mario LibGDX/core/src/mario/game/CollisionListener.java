@@ -55,6 +55,7 @@ public class CollisionListener implements ContactListener {
 				case MainGame.ENEMY | MainGame.OBJECT:
 				case MainGame.ENEMY | MainGame.COIN:
 				case MainGame.ENEMY | MainGame.ENEMY:
+				case MainGame.ENEMY | MainGame.BRICK:
 					//Two ifs so both goombas can reverse direction
 					if (fixA.getFilterData().categoryBits == MainGame.ENEMY)
 						((Goomba) fixA.getUserData()).reverseDir();

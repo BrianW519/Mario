@@ -135,7 +135,7 @@ public class Goomba extends Sprite {
 	public void onHeadHit() {
 		setToDestroy = true;
 		velocity = new Vector2(0, 0);
-		setRegion(new TextureRegion(screen.getImages().findRegion("goomba"), 32, 0, 16, 16));
+		setRegion(new TextureRegion(screen.getImages().findRegion("goomba"), 32, 0, 16, 16));				//Set texture to squashed goomba
 		
 		screen.hud.addScore(25);
 	}

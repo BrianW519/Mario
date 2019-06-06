@@ -11,7 +11,8 @@ public class MainGame extends Game {
 	//Virtual Screen size and Box2D Scale(Pixels Per Meter)
 	public static final int		V_WIDTH		= 400;
 	public static final int		V_HEIGHT	= 208;
-	//Make PPM float to fix division problem
+	
+	//Make PPM a float to fix division problem
 	public static final float	PPM			= 100;
 
 	public static Game			game;
@@ -19,7 +20,7 @@ public class MainGame extends Game {
 
 	public SpriteBatch			batch;
 
-	// Box2D Collision Bits
+	// Collision IDS
 	public static final short	NOTHING		= 0;
 	public static final short	GROUND		= 1;
 	public static final short	MARIO		= 2;
@@ -39,7 +40,7 @@ public class MainGame extends Game {
 		levels = new Levels(3);
 		
 		//Set screen to the game screen (should start at beginning screen)
-		//Pass this class so it has dimensions, PPM, and spritebatch 
+		//Pass this class so it has dimensions, PPM, collision ids and spritebatch 
 		setScreen(new StartScreen(this));
 	}
 

@@ -32,8 +32,10 @@ public abstract class interactiveObject {
 		this.screen = screen;
 		this.world = screen.getWorld();
 		this.map = screen.getMap();
-		this.bounds = ((RectangleMapObject) object).getRectangle();
-
+		this.bounds = ((RectangleMapObject) object).getRectangle();						//Get rectangle size from map
+		
+		
+		//*****Create body and fixture*****
 		BodyDef bdef = new BodyDef();
 		FixtureDef fdef = new FixtureDef();
 		PolygonShape shape = new PolygonShape();
@@ -53,12 +55,14 @@ public abstract class interactiveObject {
 	//Method for when marios head hits object
 	public abstract void onHeadHit();
 
-	public void setCategoryFilter(short filterBit) {
+	//Set the filter ID
+	public void setCategoryFilter(short filterID) {
 		Filter filter = new Filter();
-		filter.categoryBits = filterBit;
+		filter.categoryBits = filterID;
 		fixture.setFilterData(filter);
 	}
 
+	//Get where the object is on the map
 	public TiledMapTileLayer.Cell getCell() {
 		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(1);
 		return layer.getCell((int) (body.getPosition().x * GameScreen.PPM / 16),

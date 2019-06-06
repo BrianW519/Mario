@@ -52,6 +52,7 @@ public class Pipe extends interactiveObject {
 		else if (action == "Instructions")
 			Gdx.app.log("Pipe", "Instructions");
 
+		//Enter Level
 		else if (action == "Level 1")
 			screen.game.setScreen(new GameScreen(screen.game, 1));
 		else if (action == "Level 2" && screen.game.levels.isUnlocked(2))

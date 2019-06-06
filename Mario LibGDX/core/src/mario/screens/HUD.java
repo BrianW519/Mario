@@ -35,7 +35,7 @@ public class HUD implements Disposable {
 	private Label			gameOverText;
 
 	public HUD(SpriteBatch sb) {
-		worldTimer = 300;
+		worldTimer = 120;
 		timeCount = 0;
 		score = 0;
 
@@ -90,7 +90,7 @@ public class HUD implements Disposable {
 
 	public void update(float dt, int lives) {
 		timeCount += dt;
-		if (timeCount >= 1) {
+		if (timeCount >= 1) {												//Once a second passes, subtract from time
 			if (worldTimer > 0) {
 				worldTimer--;
 			} else {

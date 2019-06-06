@@ -1,16 +1,11 @@
 package mario.screens;
 
 import java.util.ArrayList;
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
@@ -18,25 +13,16 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import mario.game.CollisionListener;
 import mario.game.MainGame;
@@ -82,15 +68,13 @@ public class GameScreen implements Screen {
 	private OrthographicCamera			gameCam;
 	private Viewport					gamePort;
 
-	private CollisionListener			contactListener;
-
 
 	// ===================================================================================
 	// ================================= Constructor =====================================
 	// ===================================================================================
 	public GameScreen(MainGame game, int level) {
 
-		gameCam = new OrthographicCamera();
+		gameCam = new OrthographicCamera();													//New camera to follow mario
 		gamePort = new FitViewport(MainGame.V_WIDTH / PPM, MainGame.V_HEIGHT / PPM, gameCam);
 
 		this.game = game;
@@ -115,8 +99,8 @@ public class GameScreen implements Screen {
 		}
 		mapProperties = map.getProperties();												//Get map properties for width later
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
-		// Set Game Camera Position at beginning
-		gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
+		
+		gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);// Set Game Camera Position at beginning
 
 		game.batch.enableBlending();
 
@@ -142,6 +126,7 @@ public class GameScreen implements Screen {
 		PolygonShape shape = new PolygonShape();
 		FixtureDef fdef = new FixtureDef();
 		Body body;
+		
 		// Gets Ground layer from map objects and creates static body
 		for (MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
 			Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -234,13 +219,9 @@ public class GameScreen implements Screen {
 		if (Gdx.input.isKeyPressed(DOWN)) {
 			for (Pipe pipe : pipes)
 				if (pipe.isActive()) {
-					//Use the pipe
-					pipe.usePipe();
-					//make pipe inactive so its only used once
-					pipe.inactive();
+					pipe.usePipe();															//Use the pipe
+					pipe.inactive();														//Make pipe inactive so its only used once
 				}
-
-			Gdx.app.log("Mario", "Position is " + mario.getX() + "," + mario.getY());
 		}
 
 	}
@@ -278,7 +259,7 @@ public class GameScreen implements Screen {
 		//Do this at beginning to render game over text first
 		if (mario.currentState == State.DEAD) {
 			try {
-				Thread.sleep(6000);
+				Thread.sleep(4000);															//After death, pause for 4 seconds
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

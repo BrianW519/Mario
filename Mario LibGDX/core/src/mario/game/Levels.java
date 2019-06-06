@@ -9,14 +9,14 @@ public class Levels {
 
 	public Levels(int count) {
 		levelCount = count;
-		levelComplete = new boolean[levelCount];
+		levelComplete = new boolean[levelCount];			//Array for levels completed or not
 		levelUnlocked = new boolean[levelCount];
-		for (int i = 0; i < levelCount; i++) {
+		
+		for (int i = 0; i < levelCount; i++) {				//Set all levels to locked at beginning
 			levelComplete[i] = false;
 			levelUnlocked[i] = false;
 		}
 		levelUnlocked[0] = true;							//Set first level to be unlocked by default
-		levelUnlocked[1] = true;
 	}
 
 	public void complete(int level) {
@@ -24,10 +24,14 @@ public class Levels {
 	}
 
 	public void unlock(int level) {
-		levelUnlocked[level - 1] = true;
+		if (level <= levelCount)
+			levelUnlocked[level - 1] = true;
 	}
 
 	public boolean isUnlocked(int level) {
-		return levelUnlocked[level - 1];
+		if (level <= levelCount)
+			return levelUnlocked[level - 1];
+		else
+			return false;
 	}
 }
