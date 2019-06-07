@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.maps.MapObject;
 import mario.game.MainGame;
 import mario.screens.GameScreen;
+import mario.screens.InstructionsScreen;
 import mario.screens.LevelScreen;
 import mario.screens.StartScreen;
 import mario.sprite.Mario;
@@ -48,9 +49,11 @@ public class Pipe extends interactiveObject {
 
 		//Check what pipe does and execute
 		if (action == "Start Game")
-			screen.game.setScreen(new LevelScreen(screen.game));								//Start game
+			screen.game.setScreen(new LevelScreen(screen.game));								//Go to level screen
 		else if (action == "Instructions")
-			Gdx.app.log("Pipe", "Instructions");
+			screen.game.setScreen(new InstructionsScreen(screen.game));							//Go to instructions screen
+		else if (action == "Start Screen")
+			screen.game.setScreen(new StartScreen(screen.game));								//Go to instructions screen
 
 		//Enter Level
 		else if (action == "Level 1")

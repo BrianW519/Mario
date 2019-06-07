@@ -86,6 +86,10 @@ public class HUD implements Disposable {
 			gameOverText.setText("Game Over");
 		else if (why == 1)
 			gameOverText.setText("Time Up");								//Game over b/c time was up
+		else if (why == 2)
+			gameOverText.setText("Lost Life");								//Display that mario lost a life
+		else
+			gameOverText.setText("");										//Un-Display text
 	}
 
 	public void update(float dt, int lives) {

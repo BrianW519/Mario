@@ -41,6 +41,7 @@ public class Mario extends Sprite {
 
 	private TextureRegion	marioStanding;
 	public boolean			facingRight;
+	public boolean			textDisappear;
 
 	public State			currentState;
 	public State			previousState;
@@ -66,6 +67,7 @@ public class Mario extends Sprite {
 		// define mario standing image from atlas
 		marioStanding = new TextureRegion(getTexture(), 0, 10, 16, 16);
 		facingRight = true;
+		textDisappear = false;
 		// set how big it should be
 		setBounds(0, 0, 16 / MainGame.PPM, 16 / MainGame.PPM);
 		setRegion(marioStanding);
@@ -203,6 +205,17 @@ public class Mario extends Sprite {
 
 	public void loseLife() {
 		lives--;
+		((GameScreen) screen).hud.gameOver(2); 													//Display mario lost a life
+		textDisappear = true;
+
+		//Pause for 1 second
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	public void deadCheck() {

@@ -83,7 +83,6 @@ public class Goomba extends Sprite {
 		fdef.filter.categoryBits = MainGame.ENEMY;
 		fdef.filter.maskBits = MainGame.GROUND |
 				MainGame.COIN |
-				MainGame.BRICK |
 				MainGame.ENEMY |
 				MainGame.OBJECT |
 				MainGame.MARIO;
